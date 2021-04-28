@@ -1,6 +1,6 @@
 ::selection {
   color:black;
-  background:#304044;
+  background:white;
 }
 
 @font-face
@@ -50,8 +50,8 @@ img
   padding:10px;
   padding-top:1px;
   border-radius:25px;
-  border-right:15px solid #090d0f;
-  background-color:#090d0f;
+  border-right:15px solid #545454;
+  background-color:#545454;
   width:500px;
   height:250px;
   overflow-y:scroll;
@@ -72,12 +72,12 @@ img
 
 #Logs::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-    background-color:#111a1c;
+    background-color:#707070;
     border-radius: 10px;
 }
 
 #Logs::-webkit-scrollbar-thumb {
-    background-color:#1c282b;
+    background-color:#8e8e8e;
     border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
 }
@@ -87,7 +87,7 @@ img
   width:26px;
   height:26px;
   border-radius:50%;
-  background-color:#111a1c;
+  background-color:#707070;
   transition:transform 0.25s ease;
   display:block;
   position:relative;
@@ -99,7 +99,7 @@ img
 
 #ConsoleToggle:hover
 {
-  background-color:#1c282b;
+  background-color:#8e8e8e;
 }
 
 #ConsoleToggle img
@@ -114,7 +114,7 @@ img
 
 #BlankLog
 {
-  color:#1c282b;
+  color:black;
   text-align:center;
 }
 
@@ -128,24 +128,24 @@ img
 {
   color:white;
   border-left:2px solid white;
-  background-color:#111a1c;
+  background-color:#707070;
 }
 
 .Log:hover
 {
-  background-color:#1c282b;
+  background-color:#8e8e8e;
 }
 
 .ErrLog
 {
   color:red;
   border-left:2px solid red;
-  background-color:#1e1212;
+  background-color:#7a4a4a;
 }
 
 .ErrLog:hover
 {
-  background-color:#2b1717;
+  background-color:#a35656;
 }
 
 #ConsoleTA
@@ -155,17 +155,17 @@ img
   height:25px;
   width:100%;
   margin-top:10px;
-  color:white;
-  background-color:#090d0f;
-  border:5px solid #090d0f;
+  color:black;
+  background-color:#545454;
+  border:5px solid #545454;
   border-radius:20px;
 }
 
 #ConsoleTA:focus
 {
   outline:none;
-  background-color:#111a1c;
-  border:5px solid #111a1c;
+  background-color:#707070;
+  border:5px solid #707070;
 }
 
 #Console textarea
@@ -175,13 +175,31 @@ img
 }
 
 #Console textarea::-webkit-input-placeholder {
-  color: #1c282b;
+  color: #8e8e8e;
 }
 
 #Console textarea:-moz-placeholder { /* Firefox 18- */
-  color: #1c282b;
+  color: #8e8e8e;
 }
 
+#Console textarea::-moz-placeholder {  /* Firefox 19+ */
+  color: #8e8e8e;
+}
+
+#Console textarea:-ms-input-placeholder {
+  color: #8e8e8e;
+}
+
+#Console textarea::placeholder {
+  color: #8e8e8e;
+}
+
+#Content
+{
+  overflow:hidden;
+  width:100%;
+  height:100%;
+}
 #Console textarea::-moz-placeholder {  /* Firefox 19+ */
   color: #1c282b;
 }
