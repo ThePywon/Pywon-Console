@@ -181,32 +181,31 @@ class Pacman
         movement.Add(new Vector2(this.speed, 0));
       }
     }
-    else if(this.facing.toLowerCase() == "down" &&
-      getLevelValue(getLevelIndex(new Vector2(this.position.X + this.width/2, this.position.Y-this.speed + this.width/2))) == "0")
+    else if(this.facing.toLowerCase() == "down")
     {
-      if(this.position.Y - this.speed > 0)
+      if(this.position.Y - this.speed > 0 && getLevelValue(getLevelIndex(new Vector2(this.position.X + this.width/2, this.position.Y-this.speed + this.width/2))) == "0")
       {
         movement.Add(new Vector2(0, -this.speed));
       }
     }
-    else if(this.facing.toLowerCase() == "left" &&
-      getLevelValue(getLevelIndex(new Vector2(this.position.X-this.speed + this.width/2, this.position.Y + this.width/2))) == "0")
+    else if(this.facing.toLowerCase() == "left")
     {
-      if(this.position.X - this.speed > 0)
+      if(this.position.X - this.speed > 0 &&
+      getLevelValue(getLevelIndex(new Vector2(this.position.X-this.speed + this.width/2, this.position.Y + this.width/2))) == "0")
       {
         movement.Add(new Vector2(-this.speed, 0));
       }
     }
-    else if(this.facing.toLowerCase() == "up" &&
-      getLevelValue(getLevelIndex(new Vector2(this.position.X + this.width/2, this.position.Y+this.speed + this.width/2))) == "0")
+    else if(this.facing.toLowerCase() == "up")
     {
-      if(this.position.Y + this.speed < window.innerHeight-24)
+      if(this.position.Y + this.speed < window.innerHeight-24 &&
+      getLevelValue(getLevelIndex(new Vector2(this.position.X + this.width/2, this.position.Y+this.speed + this.width/2))) == "0")
       {
         movement.Add(new Vector2(0, this.speed));
       }
     }
     else
-      LogError("Invalid facing direction used in Pacman.move()");
+      LogError("Invalid facing direction used in Pacman.move()<br/>Direction: " + this.facing);
     
     if(!movement.Equals(new Vector2()))
     {
