@@ -176,14 +176,14 @@ class Pacman
     if(this.facing.toLowerCase() == "right")
     {
       if(this.position.X + this.speed < window.innerWidth-24 &&
-      getLevelValue(getLevelIndex(new Vector2(this.position.X + this.speed + this.width/2, this.position.Y + this.width/2))) == "0")
+      getLevelValue(getLevelIndex(new Vector2(this.position.X + this.speed + this.width, this.position.Y+4))) == "0" && getLevelValue(getLevelIndex(new Vector2(this.position.X + this.speed + this.width, this.position.Y + this.width-4))) == "0")
       {
         movement.Add(new Vector2(this.speed, 0));
       }
     }
     else if(this.facing.toLowerCase() == "down")
     {
-      if(this.position.Y - this.speed > 0 && getLevelValue(getLevelIndex(new Vector2(this.position.X + this.width/2, this.position.Y-this.speed + this.width/2))) == "0")
+      if(this.position.Y - this.speed > 0 && getLevelValue(getLevelIndex(new Vector2(this.position.X+4, this.position.Y-this.speed))) == "0" && getLevelValue(getLevelIndex(new Vector2(this.position.X + this.width-4, this.position.Y-this.speed))) == "0")
       {
         movement.Add(new Vector2(0, -this.speed));
       }
@@ -191,7 +191,7 @@ class Pacman
     else if(this.facing.toLowerCase() == "left")
     {
       if(this.position.X - this.speed > 0 &&
-      getLevelValue(getLevelIndex(new Vector2(this.position.X-this.speed + this.width/2, this.position.Y + this.width/2))) == "0")
+      getLevelValue(getLevelIndex(new Vector2(this.position.X-this.speed, this.position.Y+4))) == "0" && getLevelValue(getLevelIndex(new Vector2(this.position.X-this.speed, this.position.Y + this.width-4))) == "0")
       {
         movement.Add(new Vector2(-this.speed, 0));
       }
@@ -199,7 +199,7 @@ class Pacman
     else if(this.facing.toLowerCase() == "up")
     {
       if(this.position.Y + this.speed < window.innerHeight-24 &&
-      getLevelValue(getLevelIndex(new Vector2(this.position.X + this.width/2, this.position.Y+this.speed + this.width/2))) == "0")
+      getLevelValue(getLevelIndex(new Vector2(this.position.X+4, this.position.Y+this.speed + this.width))) == "0" && getLevelValue(getLevelIndex(new Vector2(this.position.X + this.width-4, this.position.Y+this.speed + this.width))) == "0")
       {
         movement.Add(new Vector2(0, this.speed));
       }
