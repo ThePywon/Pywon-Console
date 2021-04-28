@@ -1,0 +1,202 @@
+::selection {
+  color:black;
+  background:#304044;
+}
+
+@font-face
+{
+  font-family: "Prompt";
+  src: url(../Assets/Fonts/Prompt.woff) format("woff"),
+  url(../Assets/Fonts/Prompt.ttf) format("truetype");
+}
+
+body
+{
+  background-color:black;
+}
+
+p, img
+{
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+img
+{
+  image-rendering: pixelated;
+}
+
+#Content
+{
+  display:inline-block;
+  width:100%;
+  height:100%;
+}
+
+#Console
+{
+  position:absolute;
+  transition:top 1s ease;
+  top:-300px;
+}
+
+#Logs
+{
+  font-family: "Prompt";
+  padding:10px;
+  padding-top:1px;
+  border-radius:25px;
+  border-right:15px solid #090d0f;
+  background-color:#090d0f;
+  width:500px;
+  height:250px;
+  overflow-y:scroll;
+  position:relative;
+}
+
+#Logs a
+{
+  color:black;
+  background-color:blue;
+  border-radius:5px;
+}
+
+#Logs::-webkit-scrollbar {
+    width: 12px;
+    margin-right:5px;
+}
+
+#Logs::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color:#111a1c;
+    border-radius: 10px;
+}
+
+#Logs::-webkit-scrollbar-thumb {
+    background-color:#1c282b;
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+
+#ConsoleToggle
+{
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  background-color:#111a1c;
+  transition:transform 0.25s ease;
+  display:block;
+  position:relative;
+  margin:auto;
+  padding:auto;
+  margin-top:10px;
+  cursor:pointer;
+}
+
+#ConsoleToggle:hover
+{
+  background-color:#1c282b;
+}
+
+#ConsoleToggle img
+{
+  width:16px;
+  height:16px;
+  display:block;
+  position:absolute;
+  top:5px;
+  left:5px;
+}
+
+#BlankLog
+{
+  color:#1c282b;
+  text-align:center;
+}
+
+.Log, .ErrLog
+{
+  padding:15px;
+  border-radius:10px;
+}
+
+.Log
+{
+  color:white;
+  border-left:2px solid white;
+  background-color:#111a1c;
+}
+
+.Log:hover
+{
+  background-color:#1c282b;
+}
+
+.ErrLog
+{
+  color:red;
+  border-left:2px solid red;
+  background-color:#1e1212;
+}
+
+.ErrLog:hover
+{
+  background-color:#2b1717;
+}
+
+#ConsoleTA
+{
+  resize:none;
+  overflow:hidden;
+  height:25px;
+  width:100%;
+  margin-top:10px;
+  color:white;
+  background-color:#090d0f;
+  border:5px solid #090d0f;
+  border-radius:20px;
+}
+
+#ConsoleTA:focus
+{
+  outline:none;
+  background-color:#111a1c;
+  border:5px solid #111a1c;
+}
+
+#Console textarea
+{
+  font-family:"Prompt";
+  font-size:16px;
+}
+
+#Console textarea::-webkit-input-placeholder {
+  color: #1c282b;
+}
+
+#Console textarea:-moz-placeholder { /* Firefox 18- */
+  color: #1c282b;
+}
+
+#Console textarea::-moz-placeholder {  /* Firefox 19+ */
+  color: #1c282b;
+}
+
+#Console textarea:-ms-input-placeholder {
+  color: #1c282b;
+}
+
+#Console textarea::placeholder {
+  color: #1c282b;
+}
+
+#Content
+{
+  overflow:hidden;
+  width:100%;
+  height:100%;
+}
