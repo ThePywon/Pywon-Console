@@ -210,6 +210,14 @@ class Pacman
     if(!movement.Equals(new Vector2()))
     {
       this.position.Add(movement);
+      if(this.position.X < LevelPos.X)
+        this.position.X = LevelPos.X + LevelSize.X * CellSize - this.width;
+      else if(this.position.X > LevelPos.X + LevelSize.X * CellSize - this.width)
+        this.position.X = LevelPos.X;
+      if(this.position.Y < LevelPos.Y)
+        this.position.Y = LevelPos.Y + LevelSize.Y;
+      else if(this.position.Y > LevelPos.Y + LevelSize.Y * CellSize - this.width)
+        this.position.Y = LevelPos.Y + LevelSize.Y * CellSize - this.width;
       this.Display.style.left = this.position.X;
       this.Display.style.bottom = this.position.Y;
       this.animate();
@@ -259,7 +267,7 @@ class Ghost
     this.position = new Vector2();
     this.speed = 3;
     this.facing = facing;
-    this.state = "eaten";
+    this.state = "chase";
     this.target = new Vector2();
     if(position.X !== undefined && position.Y !== undefined)
       this.position = position;
@@ -404,19 +412,8 @@ class Ghost
       var newPos = new Vector2(this.position.X + this.width, this.position.Y);
       
       if(this.position.X + this.width < window.innerWidth-28 &&
-      getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "0")
-      {
-        var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
-        
-        if(closestDist === undefined || dist <= closestDist)
-        {
-          closestDist = dist;
-          lastDir = "right";
-          movement = new Vector2(this.width, 0);
-        }
-      }
-      else if(this.position.X + this.width < window.innerWidth-28 &&
-      !this.state == "chase" && getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "2")
+      getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "0" || this.position.X + this.width < window.innerWidth-28 &&
+      this.state != "chase" && getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "2")
       {
         var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
         
@@ -433,19 +430,7 @@ class Ghost
       var newPos = new Vector2(this.position.X, this.position.Y-this.height);
       
       if(this.position.Y - this.height > 0 &&
-      getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "0")
-      {
-        var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
-        
-        if(closestDist === undefined || dist <= closestDist)
-        {
-          closestDist = dist;
-          lastDir = "down";
-          movement = new Vector2(0, -this.height);
-        }
-      }
-      else if(this.position.X + this.width < window.innerWidth-28 &&
-      !this.state == "chase" && getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "2")
+      getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "0" || this.position.Y - this.height > 0 && this.state != "chase" && getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "2")
       {
         var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
         
@@ -463,8 +448,8 @@ class Ghost
       
       if(this.position.X - this.width > 0 &&
       getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "0" ||
-      this.position.X + this.width < window.innerWidth-28 &&
-      !this.state == "chase" && getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "2")
+      this.position.X - this.width > 0 &&
+      this.state != "chase" && getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "2")
       {
         var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
         
@@ -483,7 +468,7 @@ class Ghost
       if(this.position.Y + this.height < window.innerHeight-28 &&
       getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "0" ||
       this.position.X + this.width < window.innerWidth-28 &&
-      !this.state == "chase" && getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "2")
+      this.state != "chase" && getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "2")
       {
         var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
         
@@ -502,6 +487,14 @@ class Ghost
     if(!movement.Equals(new Vector2()))
     {
       this.position.Add(movement);
+      if(this.position.X < LevelPos.X)
+        this.position.X = LevelPos.X + LevelSize.X * CellSize - this.width;
+      else if(this.position.X > LevelPos.X + LevelSize.X * CellSize - this.width)
+        this.position.X = LevelPos.X;
+      if(this.position.Y < LevelPos.Y)
+        this.position.Y = LevelPos.Y + LevelSize.Y;
+      else if(this.position.Y > LevelPos.Y + LevelSize.Y * CellSize - this.width)
+        this.position.Y = LevelPos.Y + LevelSize.Y * CellSize - this.width;
       this.Display.style.left = this.position.X;
       this.Display.style.bottom = this.position.Y;
       this.animate();
@@ -820,12 +813,6 @@ function Start()
   setupUI();
   
   setupLevel();
-  
-  PlayerInstance = new Pacman(new Vector2());
-  Blinky = new Ghost("Blinky", new Vector2());
-  Pinky = new Ghost("Pinky", new Vector2());
-  Inky = new Ghost("Inky", new Vector2());
-  Clyde = new Ghost("Clyde", new Vector2());
 }
 
 function setupFonts()
@@ -861,6 +848,12 @@ function setupLevel()
         new Tile(new Vector2(LevelPos.X+x*CellSize, LevelPos.Y+y*CellSize), new Vector2(x, y));
     }
   }
+  
+  PlayerInstance = new Pacman(new Vector2(LevelPos.X + 11 * CellSize, LevelPos.Y + 9 * CellSize));
+  Blinky = new Ghost("Blinky", new Vector2(LevelPos.X + 11 * CellSize, LevelPos.Y + 12 * CellSize));
+  Pinky = new Ghost("Pinky", new Vector2(LevelPos.X + 11 * CellSize, LevelPos.Y + 12 * CellSize));
+  Inky = new Ghost("Inky", new Vector2(LevelPos.X + 11 * CellSize, LevelPos.Y + 12 * CellSize));
+  Clyde = new Ghost("Clyde", new Vector2(LevelPos.X + 11 * CellSize, LevelPos.Y + 12 * CellSize));
 }
 
 function getLevelValue(V2)
