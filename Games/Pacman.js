@@ -112,13 +112,11 @@ class Vector2
 
 class Pacman
 {
-  constructor(position, facing = "up")
+  constructor(level, position, facing = "up")
   {
+    this.level = level;
     this.position = new Vector2();
-    if(position.X !== undefined && position.Y !== undefined)
-      this.position = position;
-    else
-      LogError("Invalid position was passed in Pacman class.");
+    this.position = position;
     this.speed = 5;
     this.facing = facing;
     this.sprites = ["Pacman2", "Pacman3", "Pacman2", "Pacman1"];
@@ -176,14 +174,14 @@ class Pacman
     if(this.facing.toLowerCase() == "right")
     {
       if(this.position.X + this.speed < window.innerWidth-24 &&
-      getLevelValue(getLevelIndex(new Vector2(this.position.X + this.speed + this.width, this.position.Y+4))) == "0" && getLevelValue(getLevelIndex(new Vector2(this.position.X + this.speed + this.width, this.position.Y + this.width-4))) == "0")
+      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.speed + this.width-4, this.position.Y+4))) == 0 && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.speed + this.width-4, this.position.Y + this.width-4))) == 0)
       {
         movement.Add(new Vector2(this.speed, 0));
       }
     }
     else if(this.facing.toLowerCase() == "down")
     {
-      if(this.position.Y - this.speed > 0 && getLevelValue(getLevelIndex(new Vector2(this.position.X+4, this.position.Y-this.speed))) == "0" && getLevelValue(getLevelIndex(new Vector2(this.position.X + this.width-4, this.position.Y-this.speed))) == "0")
+      if(this.position.Y - this.speed > 0 && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X+4, this.position.Y-this.speed+4))) == 0 && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.width-4, this.position.Y-this.speed+4))) == 0)
       {
         movement.Add(new Vector2(0, -this.speed));
       }
@@ -191,7 +189,7 @@ class Pacman
     else if(this.facing.toLowerCase() == "left")
     {
       if(this.position.X - this.speed > 0 &&
-      getLevelValue(getLevelIndex(new Vector2(this.position.X-this.speed, this.position.Y+4))) == "0" && getLevelValue(getLevelIndex(new Vector2(this.position.X-this.speed, this.position.Y + this.width-4))) == "0")
+      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X-this.speed+4, this.position.Y+4))) == 0 && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X-this.speed+4, this.position.Y + this.width-4))) == 0)
       {
         movement.Add(new Vector2(-this.speed, 0));
       }
@@ -199,7 +197,7 @@ class Pacman
     else if(this.facing.toLowerCase() == "up")
     {
       if(this.position.Y + this.speed < window.innerHeight-24 &&
-      getLevelValue(getLevelIndex(new Vector2(this.position.X+4, this.position.Y+this.speed + this.width))) == "0" && getLevelValue(getLevelIndex(new Vector2(this.position.X + this.width-4, this.position.Y+this.speed + this.width))) == "0")
+      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X+4, this.position.Y+this.speed + this.width-4))) == 0 && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.width-4, this.position.Y+this.speed + this.width-4))) == 0)
       {
         movement.Add(new Vector2(0, this.speed));
       }
@@ -210,14 +208,14 @@ class Pacman
     if(!movement.Equals(new Vector2()))
     {
       this.position.Add(movement);
-      if(this.position.X < LevelPos.X)
-        this.position.X = LevelPos.X + LevelSize.X * CellSize - this.width;
-      else if(this.position.X > LevelPos.X + LevelSize.X * CellSize - this.width)
-        this.position.X = LevelPos.X;
-      if(this.position.Y < LevelPos.Y)
-        this.position.Y = LevelPos.Y + LevelSize.Y;
-      else if(this.position.Y > LevelPos.Y + LevelSize.Y * CellSize - this.width)
-        this.position.Y = LevelPos.Y + LevelSize.Y * CellSize - this.width;
+      if(this.position.X < this.level.position.X)
+        this.position.X = this.level.position.X + this.level.size.X * this.level.cellSize - this.width;
+      else if(this.position.X > this.level.position.X + this.level.size.X * this.level.cellSize - this.width)
+        this.position.X = this.level.position.X;
+      if(this.position.Y < this.level.position.Y)
+        this.position.Y = this.level.position.Y + this.level.size.Y;
+      else if(this.position.Y > this.level.position.Y + this.level.size.Y * this.level.cellSize - this.width)
+        this.position.Y = this.level.position.Y + this.level.size.Y * this.level.cellSize - this.width;
       this.Display.style.left = this.position.X;
       this.Display.style.bottom = this.position.Y;
       this.animate();
@@ -261,21 +259,18 @@ class Pacman
 
 class Ghost
 {
-  constructor(name, position, facing = "up")
+  constructor(level, name, position, facing = "up")
   {
+    this.level = level;
     this.name = name;
-    this.position = new Vector2();
     this.speed = 3;
     this.facing = facing;
     this.state = "chase";
-    this.target = new Vector2();
-    if(position.X !== undefined && position.Y !== undefined)
-      this.position = position;
-    else
-      LogError("Invalid position was passed in Ghost class.");
+    this.position = new Vector2();
+    this.position = position;
     this.animIndex = 0;
     this.animTimer = 0;
-      
+    
     this.Init();
   }
   
@@ -296,124 +291,41 @@ class Ghost
     var Instance = this;
     
     var Update = setInterval(function(){
-      Instance.target = PlayerInstance.position;
+      try
+      {
       Instance.move();
+      }
+      catch(error)
+      {
+        LogError(error);
+      }
     }, 1000/this.speed);
+  }
+  
+  setAI(AI)
+  {
+    this.AI = AI;
   }
   
   move()
   {
-    var targetPos;
+    //AI
     
-    if(this.name.toLowerCase() == "blinky")
-    {
-      targetPos = this.target;
-      if(target1 === undefined)
-        {
-          target1 = document.createElement("span");
-          document.getElementById("Content").appendChild(target1);
-          target1.style.display = "block";
-          target1.style.borderRadius = "50%"
-          target1.style.backgroundColor = "red";
-          target1.style.width = 10;
-          target1.style.height = 10;
-          target1.style.position = "absolute";
-          target1.style.left = targetPos.X;
-          target1.style.bottom = targetPos.Y;
-        }
-        else
-        {
-          target1.style.left = targetPos.X;
-          target1.style.bottom = targetPos.Y;
-        }
-    }
-    else if(this.name.toLowerCase() == "pinky")
-    {
-      var forward = getV2fromDir(PlayerInstance.facing);
-        targetPos = new Vector2(this.target.X + (forward.X * this.width * 4), this.target.Y + (forward.Y * this.width * 4));
-        if(target2 === undefined)
-        {
-          target2 = document.createElement("span");
-          document.getElementById("Content").appendChild(target2);
-          target2.style.display = "block";
-          target2.style.borderRadius = "50%"
-          target2.style.backgroundColor = "#ff69e7";
-          target2.style.width = 10;
-          target2.style.height = 10;
-          target2.style.position = "absolute";
-          target2.style.left = targetPos.X;
-          target2.style.bottom = targetPos.Y;
-        }
-        else
-        {
-          target2.style.left = targetPos.X;
-          target2.style.bottom = targetPos.Y;
-        }
-    }
-    else if(this.name.toLowerCase() == "inky")
-    {
-      var forward = getV2fromDir(PlayerInstance.facing);
-        targetPos = new Vector2(this.target.X + (Blinky.position.X - this.target.X)*-2, this.target.Y + (Blinky.position.Y - this.target.Y)*-2)
-        if(target3 === undefined)
-        {
-          target3 = document.createElement("span");
-          document.getElementById("Content").appendChild(target3);
-          target3.style.display = "block";
-          target3.style.borderRadius = "50%"
-          target3.style.backgroundColor = "cyan";
-          target3.style.width = 10;
-          target3.style.height = 10;
-          target3.style.position = "absolute";
-          target3.style.left = targetPos.X;
-          target3.style.bottom = targetPos.Y;
-        }
-        else
-        {
-          target3.style.left = targetPos.X;
-          target3.style.bottom = targetPos.Y;
-        }
-    }
-    else if(this.name.toLowerCase() == "clyde")
-    {
-      var forward = getV2fromDir(PlayerInstance.facing);
-      if(Math.sqrt(Math.pow(this.position.X - this.target.X, 2) + Math.pow(this.position.Y - this.target.Y, 2)) > this.width*8)
-        targetPos = this.target;
-      else
-        targetPos = new Vector2();
-        if(target4 === undefined)
-        {
-          target4 = document.createElement("span");
-          document.getElementById("Content").appendChild(target4);
-          target4.style.display = "block";
-          target4.style.borderRadius = "50%"
-          target4.style.backgroundColor = "#ff7c00";
-          target4.style.width = 10;
-          target4.style.height = 10;
-          target4.style.position = "absolute";
-          target4.style.left = targetPos.X;
-          target4.style.bottom = targetPos.Y;
-        }
-        else
-        {
-          target4.style.left = targetPos.X;
-          target4.style.bottom = targetPos.Y;
-        }
-    }
-    else
-      targetPos = this.target;
+    var targetPos = this.AI.getTargetPos();
     
     var movement = new Vector2();
     var closestDist;
-    
     var lastDir;
+    
+    //Calculate direction
     
     if(this.facing != "left")
     {
       var newPos = new Vector2(this.position.X + this.width, this.position.Y);
       
       if(this.position.X + this.width < window.innerWidth-28 &&
-      getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "0" || this.position.X + this.width < window.innerWidth-28 &&
-      this.state != "chase" && getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "2")
+      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 0 || this.position.X + this.width < window.innerWidth-28 &&
+      this.state != "chase" && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 2)
       {
         var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
         
@@ -430,7 +342,7 @@ class Ghost
       var newPos = new Vector2(this.position.X, this.position.Y-this.height);
       
       if(this.position.Y - this.height > 0 &&
-      getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "0" || this.position.Y - this.height > 0 && this.state != "chase" && getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "2")
+      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 0 || this.position.Y - this.height > 0 && this.state != "chase" && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 2)
       {
         var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
         
@@ -447,9 +359,9 @@ class Ghost
       var newPos = new Vector2(this.position.X-this.width, this.position.Y);
       
       if(this.position.X - this.width > 0 &&
-      getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "0" ||
+      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 0 ||
       this.position.X - this.width > 0 &&
-      this.state != "chase" && getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "2")
+      this.state != "chase" && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 2)
       {
         var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
         
@@ -466,9 +378,9 @@ class Ghost
       var newPos = new Vector2(this.position.X, this.position.Y+this.height);
       
       if(this.position.Y + this.height < window.innerHeight-28 &&
-      getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "0" ||
+      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 0 ||
       this.position.X + this.width < window.innerWidth-28 &&
-      this.state != "chase" && getLevelValue(getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.width/2))) == "2")
+      this.state != "chase" && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 2)
       {
         var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
         
@@ -481,20 +393,22 @@ class Ghost
       }
     }
     
+    //Move
+    
     if(lastDir !== undefined)
       this.facing = lastDir;
     
     if(!movement.Equals(new Vector2()))
     {
       this.position.Add(movement);
-      if(this.position.X < LevelPos.X)
-        this.position.X = LevelPos.X + LevelSize.X * CellSize - this.width;
-      else if(this.position.X > LevelPos.X + LevelSize.X * CellSize - this.width)
-        this.position.X = LevelPos.X;
-      if(this.position.Y < LevelPos.Y)
-        this.position.Y = LevelPos.Y + LevelSize.Y;
-      else if(this.position.Y > LevelPos.Y + LevelSize.Y * CellSize - this.width)
-        this.position.Y = LevelPos.Y + LevelSize.Y * CellSize - this.width;
+      if(this.position.X < this.level.position.X)
+        this.position.X = this.level.position.X + this.level.size.X * this.level.cellSize - this.width;
+      else if(this.position.X > this.level.position.X + this.level.size.X * this.level.cellSize - this.width)
+        this.position.X = this.level.position.X;
+      if(this.position.Y < this.level.position.Y)
+        this.position.Y = this.level.position.Y + this.level.size.Y;
+      else if(this.position.Y > this.level.position.Y + this.level.size.Y * this.level.cellSize - this.width)
+        this.position.Y = this.level.position.Y + this.level.size.Y * this.level.cellSize - this.width;
       this.Display.style.left = this.position.X;
       this.Display.style.bottom = this.position.Y;
       this.animate();
@@ -522,10 +436,71 @@ class Ghost
   }
 }
 
+class BlinkyAI
+{
+  constructor(target)
+  {
+    this.target = target;
+  }
+  
+  getTargetPos()
+  {
+    return this.target.position;
+  }
+}
+
+class PinkyAI
+{
+  constructor(level, target)
+  {
+    this.level = level;
+    this.target = target;
+  }
+  
+  getTargetPos()
+  {
+    return new Vector2(this.target.position.X + getV2fromDir(this.target.facing).X * 4 * this.level.cellSize, this.target.position.Y + getV2fromDir(this.target.facing).Y * 4 * this.level.cellSize);
+  }
+}
+
+class InkyAI
+{
+  constructor(level, target, other)
+  {
+    this.level = level;
+    this.target = target;
+    this.other = other;
+  }
+  
+  getTargetPos()
+  {
+    return new Vector2(this.target.position.X + getV2fromDir(this.target.facing).X * 2 * this.level.cellSize + -(this.other.position.X - (this.target.position.X + getV2fromDir(this.target.facing).X * 2 * this.level.cellSize)), this.target.position.Y + getV2fromDir(this.target.facing).Y * 2 * this.level.cellSize + -(this.other.position.Y - (this.target.position.Y + getV2fromDir(this.target.facing).Y * 2 * this.level.cellSize)));;
+  }
+}
+
+class ClydeAI
+{
+  constructor(level, ghost, target)
+  {
+    this.level = level;
+    this.ghost = ghost;
+    this.target = target;
+  }
+  
+  getTargetPos()
+  {
+    if(Math.sqrt(Math.pow(this.ghost.position.X - this.target.position.X, 2) + Math.pow(this.ghost.position.Y - this.target.position.Y, 2)) > this.level.cellSize*8)
+      return this.target.position;
+    else
+      return this.level.position;
+  }
+}
+
 class Tile
 {
-  constructor(position, levelIndex)
+  constructor(level, position, levelIndex)
   {
+    this.level = level;
     this.position = new Vector2();
     if(position.X !== undefined && position.Y !== undefined)
       this.position = position;
@@ -548,8 +523,8 @@ class Tile
     this.Display.style.position = "absolute";
     this.Display.style.left = this.position.X;
     this.Display.style.bottom = this.position.Y;
-    this.Display.style.width = CellSize;
-    this.Display.style.height = CellSize;
+    this.Display.style.width = this.level.cellSize;
+    this.Display.style.height = this.level.cellSize;
   }
   
   getTexture()
@@ -563,16 +538,16 @@ class Tile
     var dl = false;
     var dr = false;
     
-    up = getLevelValue(new Vector2(this.levelIndex.X, this.levelIndex.Y+1)) == "1";
-    down = getLevelValue(new Vector2(this.levelIndex.X, this.levelIndex.Y-1)) == "1";
-    right = getLevelValue(new Vector2(this.levelIndex.X+1, this.levelIndex.Y)) == "1";
-    left = getLevelValue(new Vector2(this.levelIndex.X-1, this.levelIndex.Y)) == "1";
-    ul = getLevelValue(new Vector2(this.levelIndex.X-1, this.levelIndex.Y+1)) == "1";
-    ur = getLevelValue(new Vector2(this.levelIndex.X+1, this.levelIndex.Y+1)) == "1";
-    dl = getLevelValue(new Vector2(this.levelIndex.X-1, this.levelIndex.Y-1)) == "1";
-    dr = getLevelValue(new Vector2(this.levelIndex.X+1, this.levelIndex.Y-1)) == "1";
+    up = this.level.getLevelValue(new Vector2(this.levelIndex.X, this.levelIndex.Y+1)) == "1";
+    down = this.level.getLevelValue(new Vector2(this.levelIndex.X, this.levelIndex.Y-1)) == "1";
+    right = this.level.getLevelValue(new Vector2(this.levelIndex.X+1, this.levelIndex.Y)) == "1";
+    left = this.level.getLevelValue(new Vector2(this.levelIndex.X-1, this.levelIndex.Y)) == "1";
+    ul = this.level.getLevelValue(new Vector2(this.levelIndex.X-1, this.levelIndex.Y+1)) == "1";
+    ur = this.level.getLevelValue(new Vector2(this.levelIndex.X+1, this.levelIndex.Y+1)) == "1";
+    dl = this.level.getLevelValue(new Vector2(this.levelIndex.X-1, this.levelIndex.Y-1)) == "1";
+    dr = this.level.getLevelValue(new Vector2(this.levelIndex.X+1, this.levelIndex.Y-1)) == "1";
     
-    if(getLevelValue(this.levelIndex) == "1")
+    if(this.level.getLevelValue(this.levelIndex) == "1")
     {
       if(up && down && right && left && ul && ur && dl && dr)
         this.Display.style.display = "none";
@@ -757,7 +732,7 @@ class Tile
         this.Display.style.transform = "rotate(-90deg)";
       }
     }
-    else if(getLevelValue(this.levelIndex) == "2")
+    else if(this.level.getLevelValue(this.levelIndex) == "2")
     {
       this.Display.src = "../Assets/Images/BarrierTile.png";
       
@@ -767,7 +742,87 @@ class Tile
   }
 }
 
-var LevelData = [
+class Level
+{
+  constructor(data, cellSize)
+  {
+    this.cellSize = cellSize;
+    this.setData(data);
+    this.position = new Vector2(parseInt(((window.innerWidth)-this.size.X*this.cellSize)/2/this.cellSize)*this.cellSize, (window.innerHeight-this.size.Y*this.cellSize)/2);
+    this.createLevel();
+  }
+  
+  setData(data)
+  {
+    for(var i = 0; i < data.length; i++)
+    {
+      if(this.size === undefined)
+        this.size = new Vector2(data[i].length, data.length);
+      else if(this.size.X > data[i].length)
+        this.size.X = data[i].length;
+    }
+    
+    this.data = []
+    
+    for(var i = 0; i < this.size.Y; i++)
+      this.data.push(data[i].slice(0, this.size.X));
+  }
+  
+  createLevel()
+  {
+    for(var x = 0; x < this.size.X; x++)
+    {
+      for(var y = 0; y < this.size.Y; y++)
+      {
+        if(this.getLevelValue(new Vector2(x, y)) != "0")
+          new Tile(this, new Vector2(this.position.X+x*this.cellSize, this.position.Y+y*this.cellSize), new Vector2(x, y));
+      }
+    }
+  }
+  
+  getLevelIndex(V2)
+  {
+    var vector2 = new Vector2();
+    if(vector2.X !== undefined && vector2.Y !== undefined)
+      vector2 = V2;
+    else
+      LogError("Invalid position was passed in getLevelValue()");
+      
+    vector2.Substract(this.position);
+    vector2.Divide(this.cellSize);
+    vector2 = new Vector2(parseInt(vector2.X), parseInt(vector2.Y));
+    
+    return vector2;
+  }
+  
+  getLevelValue(V2)
+  {
+    var vector2 = new Vector2();
+    if(vector2.X !== undefined && vector2.Y !== undefined)
+      vector2 = V2;
+    else
+      LogError("Invalid position was passed in getLevelValue()");
+      
+    if(vector2.X >= 0 && vector2.X < this.size.X &&
+    vector2.Y >= 0 && vector2.Y < this.size.Y)
+      return parseInt(this.data[this.data.length-vector2.Y-1].charAt(vector2.X));
+    else
+      return 0;
+  }
+}
+
+var UIdiv;
+var target1;
+var target2;
+var target3;
+var target4;
+
+function Start()
+{
+  setupFonts();
+  setupUI();
+  
+  var CurrentLevel = new Level([
   "11111111111111111111111",
   "10000000000100000000001",
   "10111011110101111011101",
@@ -790,29 +845,40 @@ var LevelData = [
   "10111111110101111111101",
   "10000000000000000000001",
   "11111111111111111111111"
-  ]
-var LevelPos = new Vector2();
-var LevelSize = new Vector2(23, 22);
-var CellSize = 28;
-var Grid;
-
-var PlayerInstance;
-var UIdiv;
-var Blinky
-var target1;
-var Pinky
-var target2;
-var Inky
-var target3;
-var Clyde
-var target4;
-
-function Start()
-{
-  setupFonts();
-  setupUI();
+  ], 28);
   
-  setupLevel();
+  var PlayerInstance = new Pacman(CurrentLevel, new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 9 * CurrentLevel.cellSize));
+  
+  document.addEventListener('keydown', function(event) {
+    if(event.keyCode == 37) {
+      PlayerInstance.rotate("left");
+    }
+    else if(event.keyCode == 38) {
+      PlayerInstance.rotate("up");
+    }
+    else if(event.keyCode == 39) {
+      PlayerInstance.rotate("right");
+    }
+    else if(event.keyCode == 40) {
+      PlayerInstance.rotate("down");
+    }
+  });
+  
+  try
+  {
+  var Blinky = new Ghost(CurrentLevel, "Blinky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 12 * CurrentLevel.cellSize));
+  Blinky.setAI(new BlinkyAI(PlayerInstance));
+  var Pinky = new Ghost(CurrentLevel, "Pinky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 12 * CurrentLevel.cellSize));
+  Pinky.setAI(new PinkyAI(CurrentLevel, PlayerInstance));
+  var Inky = new Ghost(CurrentLevel, "Inky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 12 * CurrentLevel.cellSize));
+  Inky.setAI(new InkyAI(CurrentLevel, PlayerInstance, Blinky));
+  var Clyde = new Ghost(CurrentLevel, "Clyde", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 12 * CurrentLevel.cellSize));
+  Clyde.setAI(new ClydeAI(CurrentLevel, Clyde, PlayerInstance));
+  }
+  catch(error)
+  {
+    LogError(error);
+  }
 }
 
 function setupFonts()
@@ -836,56 +902,6 @@ function setupUI()
   UIdiv.appendChild(scoreText);
 }
 
-function setupLevel()
-{
-  LevelPos = new Vector2(parseInt(((window.innerWidth)-LevelSize.X*CellSize)/2/CellSize)*CellSize, (window.innerHeight-LevelSize.Y*CellSize)/2);
-  
-  for(var x = 0; x < LevelSize.X; x++)
-  {
-    for(var y = 0; y < LevelSize.Y; y++)
-    {
-      if(getLevelValue(new Vector2(x, y)) != "0")
-        new Tile(new Vector2(LevelPos.X+x*CellSize, LevelPos.Y+y*CellSize), new Vector2(x, y));
-    }
-  }
-  
-  PlayerInstance = new Pacman(new Vector2(LevelPos.X + 11 * CellSize, LevelPos.Y + 9 * CellSize));
-  Blinky = new Ghost("Blinky", new Vector2(LevelPos.X + 11 * CellSize, LevelPos.Y + 12 * CellSize));
-  Pinky = new Ghost("Pinky", new Vector2(LevelPos.X + 11 * CellSize, LevelPos.Y + 12 * CellSize));
-  Inky = new Ghost("Inky", new Vector2(LevelPos.X + 11 * CellSize, LevelPos.Y + 12 * CellSize));
-  Clyde = new Ghost("Clyde", new Vector2(LevelPos.X + 11 * CellSize, LevelPos.Y + 12 * CellSize));
-}
-
-function getLevelValue(V2)
-{
-  var vector2 = new Vector2();
-  if(vector2.X !== undefined && vector2.Y !== undefined)
-    vector2 = V2;
-  else
-    LogError("Invalid position was passed in getLevelValue()");
-    
-  if(vector2.X >= 0 && vector2.X < LevelSize.X &&
-  vector2.Y >= 0 && vector2.Y < LevelSize.Y)
-    return LevelData[LevelData.length-vector2.Y-1].charAt(vector2.X);
-  else
-    return "0";
-}
-
-function getLevelIndex(V2)
-{
-  var vector2 = new Vector2();
-  if(vector2.X !== undefined && vector2.Y !== undefined)
-    vector2 = V2;
-  else
-    LogError("Invalid position was passed in getLevelValue()");
-    
-  vector2.Substract(LevelPos);
-  vector2.Divide(CellSize);
-  vector2 = new Vector2(parseInt(vector2.X), parseInt(vector2.Y));
-  
-  return vector2;
-}
-
 function getV2fromDir(dir)
 {
   if(dir.toLowerCase() == "up")
@@ -901,20 +917,3 @@ function getV2fromDir(dir)
   
   return new Vector2();
 }
-
-//Little console I made ;D
-
-document.addEventListener('keydown', function(event) {
-  if(event.keyCode == 37) {
-    PlayerInstance.rotate("left");
-  }
-  else if(event.keyCode == 38) {
-    PlayerInstance.rotate("up");
-  }
-  else if(event.keyCode == 39) {
-    PlayerInstance.rotate("right");
-  }
-  else if(event.keyCode == 40) {
-    PlayerInstance.rotate("down");
-  }
-});
