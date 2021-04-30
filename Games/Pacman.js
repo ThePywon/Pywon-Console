@@ -1,115 +1,5 @@
 const FileCheck = {run:(callback) => {window.IsReady=true;callback({name:"Pacman", author:"<a href='https://discord.gg/pdgUD7R2'>Pywon</a>", desc:"A classic remade in javascript."});}};
 
-class Vector2
-{
-  constructor(X = 0, Y = 0)
-  {
-    this.X = X;
-    this.Y = Y;
-  }
-  
-  Equals(value)
-  {
-    if(this.X == value.X && this.Y == value.Y)
-      return true;
-    else
-      return false;
-  }
-  
-  Add(value)
-  {
-    if(value.X !== undefined && value.Y !== undefined)
-    {
-      this.X += value.X;
-      this.Y += value.Y;
-    }
-    else
-    {
-      if(typeof value == "object")
-        LogError("Vector2 cannot make an addition with an object of type " + value.constructor.name);
-      else
-        LogError("Vector2 cannot make an addition with a " + typeof value);
-    }
-  }
-  
-  Substract(value)
-  {
-    if(value.X !== undefined && value.Y !== undefined)
-    {
-      this.X -= value.X;
-      this.Y -= value.Y;
-    }
-    else
-    {
-      if(typeof value == "object")
-        LogError("Vector2 cannot make an substraction with an object of type " + value.constructor.name);
-      else
-        LogError("Vector2 cannot make an substraction with a " + typeof value);
-    }
-  }
-  
-  Multiply(value)
-  {
-    if(value.X !== undefined && value.Y !== undefined)
-    {
-      this.X *= value.X;
-      this.Y *= value.Y;
-    }
-    else
-    {
-      if(typeof value == "object")
-        LogError("Vector2 cannot make a multiplication with an object of type " + value.constructor.name);
-      else if(typeof value == "number")
-      {
-        this.X *= value;
-        this.Y *= value;
-      }
-      else
-        LogError("Vector2 cannot make a multiplication with a " + typeof value);
-    }
-  }
-  
-  Divide(value)
-  {
-    if(value.X !== undefined && value.Y !== undefined)
-    {
-      this.X /= value.X;
-      this.Y /= value.Y;
-    }
-    else
-    {
-      if(typeof value == "object")
-        LogError("Vector2 cannot make a multiplication with an object of type " + value.constructor.name);
-      else if(typeof value == "number")
-      {
-        this.X /= value;
-        this.Y /= value;
-      }
-      else
-        LogError("Vector2 cannot make a multiplication with a " + typeof value);
-    }
-  }
-  
-  Distance(vector2)
-  {
-    if(vector2.X !== undefined && vector2.Y !== undefined)
-    {
-      var thirdPoint = new Vector2(this.X, vector2.Y);
-      var a = Math.abs(thirdPoint.X - vector2.X);
-      var b = Math.abs(thirdPoint.Y - this.Y);
-      var c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
-      return c;
-    }
-    else
-    {
-      if(typeof vector2 == "object")
-        LogError("Vector2 cannot calculate distance with an object of type " + value.constructor.name);
-      else
-        LogError("Vector2 cannot calculate distance with a " + typeof value);
-    }
-  }
-}
-
 class Pacman
 {
   constructor(level, position, facing = "up")
@@ -291,14 +181,7 @@ class Ghost
     var Instance = this;
     
     var Update = setInterval(function(){
-      try
-      {
       Instance.move();
-      }
-      catch(error)
-      {
-        LogError(error);
-      }
     }, 1000/this.speed);
   }
   
@@ -864,8 +747,6 @@ function Start()
     }
   });
   
-  try
-  {
   var Blinky = new Ghost(CurrentLevel, "Blinky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 12 * CurrentLevel.cellSize));
   Blinky.setAI(new BlinkyAI(PlayerInstance));
   var Pinky = new Ghost(CurrentLevel, "Pinky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 12 * CurrentLevel.cellSize));
@@ -874,11 +755,6 @@ function Start()
   Inky.setAI(new InkyAI(CurrentLevel, PlayerInstance, Blinky));
   var Clyde = new Ghost(CurrentLevel, "Clyde", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 12 * CurrentLevel.cellSize));
   Clyde.setAI(new ClydeAI(CurrentLevel, Clyde, PlayerInstance));
-  }
-  catch(error)
-  {
-    LogError(error);
-  }
 }
 
 function setupFonts()
@@ -900,20 +776,4 @@ function setupUI()
   scoreText.style.fontSize = 16;
   scoreText.innerHTML = "HIGH SCORE";
   UIdiv.appendChild(scoreText);
-}
-
-function getV2fromDir(dir)
-{
-  if(dir.toLowerCase() == "up")
-    return new Vector2(0, 1);
-  else if(dir.toLowerCase() == "right")
-    return new Vector2(1, 0);
-  else if(dir.toLowerCase() == "down")
-    return new Vector2(0, -1);
-  else if(dir.toLowerCase() == "left")
-    return new Vector2(-1, 0);
-  else
-    LogError("Invalid position passed in getV2fromDir()");
-  
-  return new Vector2();
 }
