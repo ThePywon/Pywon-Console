@@ -5,6 +5,116 @@ var Content = document.getElementById("Content");
 var CheckedValidity = false;
 var IsExecuting = false;
 
+class Vector2
+{
+  constructor(X = 0, Y = 0)
+  {
+    this.X = X;
+    this.Y = Y;
+  }
+  
+  Equals(value)
+  {
+    if(this.X == value.X && this.Y == value.Y)
+      return true;
+    else
+      return false;
+  }
+  
+  Add(value)
+  {
+    if(value.X !== undefined && value.Y !== undefined)
+    {
+      this.X += value.X;
+      this.Y += value.Y;
+    }
+    else
+    {
+      if(typeof value == "object")
+        LogError("Vector2 cannot make an addition with an object of type " + value.constructor.name);
+      else
+        LogError("Vector2 cannot make an addition with a " + typeof value);
+    }
+  }
+  
+  Substract(value)
+  {
+    if(value.X !== undefined && value.Y !== undefined)
+    {
+      this.X -= value.X;
+      this.Y -= value.Y;
+    }
+    else
+    {
+      if(typeof value == "object")
+        LogError("Vector2 cannot make an substraction with an object of type " + value.constructor.name);
+      else
+        LogError("Vector2 cannot make an substraction with a " + typeof value);
+    }
+  }
+  
+  Multiply(value)
+  {
+    if(value.X !== undefined && value.Y !== undefined)
+    {
+      this.X *= value.X;
+      this.Y *= value.Y;
+    }
+    else
+    {
+      if(typeof value == "object")
+        LogError("Vector2 cannot make a multiplication with an object of type " + value.constructor.name);
+      else if(typeof value == "number")
+      {
+        this.X *= value;
+        this.Y *= value;
+      }
+      else
+        LogError("Vector2 cannot make a multiplication with a " + typeof value);
+    }
+  }
+  
+  Divide(value)
+  {
+    if(value.X !== undefined && value.Y !== undefined)
+    {
+      this.X /= value.X;
+      this.Y /= value.Y;
+    }
+    else
+    {
+      if(typeof value == "object")
+        LogError("Vector2 cannot make a multiplication with an object of type " + value.constructor.name);
+      else if(typeof value == "number")
+      {
+        this.X /= value;
+        this.Y /= value;
+      }
+      else
+        LogError("Vector2 cannot make a multiplication with a " + typeof value);
+    }
+  }
+  
+  Distance(vector2)
+  {
+    if(vector2.X !== undefined && vector2.Y !== undefined)
+    {
+      var thirdPoint = new Vector2(this.X, vector2.Y);
+      var a = Math.abs(thirdPoint.X - vector2.X);
+      var b = Math.abs(thirdPoint.Y - this.Y);
+      var c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+      return c;
+    }
+    else
+    {
+      if(typeof vector2 == "object")
+        LogError("Vector2 cannot calculate distance with an object of type " + value.constructor.name);
+      else
+        LogError("Vector2 cannot calculate distance with a " + typeof value);
+    }
+  }
+}
+
 //Start a javascript file of your choice (has to be in the 'Games' directory)
 function Execute(name)
 {
@@ -196,4 +306,20 @@ function DoCommand(message)
   else
     if(message.replace(/ /g, "") !== "")
       Log(message);
+}
+
+function getV2fromDir(dir)
+{
+  if(dir.toLowerCase() == "up")
+    return new Vector2(0, 1);
+  else if(dir.toLowerCase() == "right")
+    return new Vector2(1, 0);
+  else if(dir.toLowerCase() == "down")
+    return new Vector2(0, -1);
+  else if(dir.toLowerCase() == "left")
+    return new Vector2(-1, 0);
+  else
+    LogError("Invalid position passed in getV2fromDir()");
+  
+  return new Vector2();
 }
