@@ -158,7 +158,7 @@ class Ghost
   {
     this.level = level;
     this.name = name;
-    this.speed = 3;
+    this.speed = 2.5;
     this.width = 28;
     this.height = 28;
     this.facing = facing;
