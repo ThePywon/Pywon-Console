@@ -5,9 +5,10 @@ class Pacman
   constructor(level, position, facing = "up")
   {
     this.level = level;
-    this.position = new Vector2();
-    this.position = position;
+    this.width = 24;
+    this.height = 24;
     this.speed = 5;
+    this.position = new Vector2(this.level.position.X + position.X * this.level.cellSize + this.level.cellSize/2 - this.width/2, this.level.position.Y + position.Y * this.level.cellSize + this.level.cellSize/2 - this.height/2);
     this.facing = facing;
     this.sprites = ["Pacman2", "Pacman3", "Pacman2", "Pacman1"];
     this.animIndex = 0;
@@ -19,8 +20,6 @@ class Pacman
   Init()
   {
     this.Display = document.createElement("img");
-    this.width = 24;
-    this.height = 24;
     this.Display.style.width = 24;
     this.Display.style.height = 24;
     this.Display.style.position = "absolute";
@@ -42,7 +41,7 @@ class Pacman
       for(var i = 0; i < Instance.level.pellets.length; i++)
       {
         if(Instance.level.getLevelIndex(new Vector2(Instance.level.pellets[i].position.X, Instance.level.pellets[i].position.Y)).Equals(Instance.level.getLevelIndex(new Vector2(Instance.position.X + Instance.width/2, Instance.position.Y + Instance.height/2))))
-        if(Math.sqrt(Math.pow(Instance.position.X - Instance.level.pellets[i].position.X, 2) + Math.pow(Instance.position.Y - Instance.level.pellets[i].position.Y, 2)) <= Instance.width/2-4)
+        if(Math.sqrt(Math.pow(Instance.position.X - Instance.level.pellets[i].position.X, 2) + Math.pow(Instance.position.Y - Instance.level.pellets[i].position.Y, 2)) <= Instance.width/2)
         {
           Instance.level.pellets[i].collect();
           return;
@@ -124,7 +123,7 @@ class Pacman
         if((val1 == 0 || val1 == 3) && (val2 == 0 || val2 == 3) && this.facing != invertDir(facing))
         {
           var pos = this.level.getLevelIndex(new Vector2(this.position.X + this.width/2, this.position.Y + this.height/2));
-          this.position = new Vector2(pos.X * this.level.cellSize + this.level.position.X, pos.Y * this.level.cellSize + this.level.position.Y);
+          this.position = new Vector2(pos.X * this.level.cellSize + this.level.position.X + this.level.cellSize/2 - this.width/2, pos.Y * this.level.cellSize + this.level.position.Y + this.level.cellSize/2 - this.height/2);
         }
         
         this.facing = facing;
@@ -160,10 +159,11 @@ class Ghost
     this.level = level;
     this.name = name;
     this.speed = 3;
+    this.width = 28;
+    this.height = 28;
     this.facing = facing;
     this.state = "chase";
-    this.position = new Vector2();
-    this.position = position;
+    this.position = new Vector2(this.level.position.X + position.X * this.level.cellSize + this.level.cellSize/2 - this.width/2, this.level.position.Y + position.Y * this.level.cellSize + this.level.cellSize/2 - this.height/2);
     this.animIndex = 0;
     this.animTimer = 0;
     
@@ -173,8 +173,6 @@ class Ghost
   Init()
   {
     this.Display = document.createElement("img");
-    this.width = 28;
-    this.height = 28;
     this.Display.style.width = this.width;
     this.Display.style.height = this.height;
     this.Display.style.position = "absolute";
@@ -214,14 +212,14 @@ class Ghost
       if(invertDir(dirs[i]) != this.facing)
       {
         var dir = dirs[i];
-        var newPos = new Vector2(this.position.X + (getV2fromDir(dir).X * this.width), this.position.Y + (getV2fromDir(dir).Y * this.height));
+        var newPos = new Vector2(this.position.X + (getV2fromDir(dir).X * this.level.cellSize), this.position.Y + (getV2fromDir(dir).Y * this.level.cellSize));
         var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
         
-        if(newPos.Y < window.innerHeight-this.height &&
-        newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 && (val
+        if(newPos.Y < window.innerHeight-this.level.cellSize &&
+        newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 && (val
          == 0 || val == 3) ||
-        newPos.Y < window.innerHeight-this.height &&
-        newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 &&
+        newPos.Y < window.innerHeight-this.level.cellSize &&
+        newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 &&
         this.state != "chase" && val
          == 2)
         {
@@ -231,7 +229,7 @@ class Ghost
           {
             closestDist = dist;
             lastDir = dir;
-            movement = new Vector2(getV2fromDir(lastDir).X * this.width, getV2fromDir(lastDir).Y * this.height);
+            movement = new Vector2(getV2fromDir(lastDir).X * this.level.cellSize, getV2fromDir(lastDir).Y * this.level.cellSize);
           }
         }
       }
@@ -744,9 +742,9 @@ function Start()
   "13111111113131111111131",
   "13333333333333333333331",
   "11111111111111111111111"
-  ], 28);
+  ], 32);
   
-  var PlayerInstance = new Pacman(CurrentLevel, new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 9 * CurrentLevel.cellSize));
+  var PlayerInstance = new Pacman(CurrentLevel, new Vector2(11, 9));
   
   document.addEventListener('keydown', function(event) {
     if(event.keyCode == 37) {
@@ -763,13 +761,13 @@ function Start()
     }
   });
   
-  var Blinky = new Ghost(CurrentLevel, "Blinky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 11 * CurrentLevel.cellSize));
+  var Blinky = new Ghost(CurrentLevel, "Blinky", new Vector2(11, 12));
   Blinky.setAI(new BlinkyAI(PlayerInstance));
-  var Pinky = new Ghost(CurrentLevel, "Pinky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 11 * CurrentLevel.cellSize));
+  var Pinky = new Ghost(CurrentLevel, "Pinky", new Vector2(11, 12));
   Pinky.setAI(new PinkyAI(CurrentLevel, PlayerInstance));
-  var Inky = new Ghost(CurrentLevel, "Inky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 11 * CurrentLevel.cellSize));
+  var Inky = new Ghost(CurrentLevel, "Inky", new Vector2(11, 12));
   Inky.setAI(new InkyAI(CurrentLevel, PlayerInstance, Blinky));
-  var Clyde = new Ghost(CurrentLevel, "Clyde", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 11 * CurrentLevel.cellSize));
+  var Clyde = new Ghost(CurrentLevel, "Clyde", new Vector2(11, 12));
   Clyde.setAI(new ClydeAI(CurrentLevel, Clyde, PlayerInstance));
 }
 
