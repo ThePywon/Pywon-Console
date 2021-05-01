@@ -38,6 +38,16 @@ class Pacman
     var Update = setInterval(function()
     {
       Instance.move();
+      //Collect pellets
+      for(var i = 0; i < Instance.level.pellets.length; i++)
+      {
+        if(Instance.level.getLevelIndex(new Vector2(Instance.level.pellets[i].position.X, Instance.level.pellets[i].position.Y)).Equals(Instance.level.getLevelIndex(new Vector2(Instance.position.X + Instance.width/2, Instance.position.Y + Instance.height/2))))
+        if(Math.sqrt(Math.pow(Instance.position.X - Instance.level.pellets[i].position.X, 2) + Math.pow(Instance.position.Y - Instance.level.pellets[i].position.Y, 2)) <= Instance.width/2-4)
+        {
+          Instance.level.pellets[i].collect();
+          return;
+        }
+      }
     }, 50)
   }
   
@@ -61,39 +71,20 @@ class Pacman
   move()
   {
     var movement = new Vector2();
-    if(this.facing.toLowerCase() == "right")
+    
+    var val1 = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + getV2fromDir(this.facing).X * this.speed + this.width-4, this.position.Y + getV2fromDir(this.facing).Y * this.speed +4)));
+    
+    var val2 = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + getV2fromDir(this.facing).X * this.speed + this.width-4, this.position.Y + getV2fromDir(this.facing).Y * this.speed + this.height-4)));
+    
+    var val3 = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + getV2fromDir(this.facing).X * this.speed +4, this.position.Y + getV2fromDir(this.facing).Y * this.speed +4)));
+    
+    var val4 = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + getV2fromDir(this.facing).X * this.speed+4, this.position.Y + getV2fromDir(this.facing).Y * this.speed + this.height-4)));
+    
+    if(this.position.X + getV2fromDir(this.facing).X * this.speed < window.innerWidth - this.width && this.position.Y + getV2fromDir(this.facing).Y * this.speed < window.innerHeight - this.height && this.position.X + getV2fromDir(this.facing).X * this.speed > 0 && this.position.Y + getV2fromDir(this.facing).Y * this.speed > 0 &&
+      (val1 == 0 || val1 == 3) && (val2 == 0 || val2 == 3) && (val3 == 0 || val3 == 3) && (val4 == 0 || val4 == 3))
     {
-      if(this.position.X + this.speed < window.innerWidth-24 &&
-      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.speed + this.width-4, this.position.Y+4))) == 0 && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.speed + this.width-4, this.position.Y + this.width-4))) == 0)
-      {
-        movement.Add(new Vector2(this.speed, 0));
-      }
+      movement.Add(new Vector2(getV2fromDir(this.facing).X*this.speed, getV2fromDir(this.facing).Y*this.speed));
     }
-    else if(this.facing.toLowerCase() == "down")
-    {
-      if(this.position.Y - this.speed > 0 && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X+4, this.position.Y-this.speed+4))) == 0 && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.width-4, this.position.Y-this.speed+4))) == 0)
-      {
-        movement.Add(new Vector2(0, -this.speed));
-      }
-    }
-    else if(this.facing.toLowerCase() == "left")
-    {
-      if(this.position.X - this.speed > 0 &&
-      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X-this.speed+4, this.position.Y+4))) == 0 && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X-this.speed+4, this.position.Y + this.width-4))) == 0)
-      {
-        movement.Add(new Vector2(-this.speed, 0));
-      }
-    }
-    else if(this.facing.toLowerCase() == "up")
-    {
-      if(this.position.Y + this.speed < window.innerHeight-24 &&
-      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X+4, this.position.Y+this.speed + this.width-4))) == 0 && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.width-4, this.position.Y+this.speed + this.width-4))) == 0)
-      {
-        movement.Add(new Vector2(0, this.speed));
-      }
-    }
-    else
-      LogError("Invalid facing direction used in Pacman.move()<br/>Direction: " + this.facing);
     
     if(!movement.Equals(new Vector2()))
     {
@@ -202,77 +193,50 @@ class Ghost
     
     //Calculate direction
     
-    if(this.facing != "left")
+    var dirs = ["right", "down", "left", "up"];
+    for(var i = 0; i < dirs.length; i++)
     {
-      var newPos = new Vector2(this.position.X + this.width, this.position.Y);
-      
-      if(this.position.X + this.width < window.innerWidth-28 &&
-      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 0 || this.position.X + this.width < window.innerWidth-28 &&
-      this.state != "chase" && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 2)
+      if(invertDir(dirs[i]) != this.facing)
       {
-        var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
+        var dir = dirs[i];
+        var newPos = new Vector2(this.position.X + (getV2fromDir(dir).X * this.width), this.position.Y + (getV2fromDir(dir).Y * this.height));
+        var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
         
-        if(closestDist === undefined || dist <= closestDist)
+        if(newPos.Y < window.innerHeight-this.height &&
+        newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 && (val
+         == 0 || val == 3) ||
+        newPos.Y < window.innerHeight-this.height &&
+        newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 &&
+        this.state != "chase" && val
+         == 2)
         {
-          closestDist = dist;
-          lastDir = "right";
-          movement = new Vector2(this.width, 0);
+          var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
+          
+          if(closestDist === undefined || dist <= closestDist)
+          {
+            closestDist = dist;
+            lastDir = dir;
+            movement = new Vector2(getV2fromDir(lastDir).X * this.width, getV2fromDir(lastDir).Y * this.height);
+          }
         }
       }
     }
-    if(this.facing != "up")
+    
+    if(movement.Equals(new Vector2()))
     {
-      var newPos = new Vector2(this.position.X, this.position.Y-this.height);
+      var newPos = new Vector2(this.position.X + -(getV2fromDir(this.facing).X * this.width), this.position.Y + -(getV2fromDir(this.facing).Y * this.height));
+      var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
       
-      if(this.position.Y - this.height > 0 &&
-      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 0 || this.position.Y - this.height > 0 && this.state != "chase" && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 2)
+      if(newPos.Y < window.innerHeight-this.height &&
+      newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 && (val
+       == 0 || val == 3) ||
+      newPos.Y < window.innerHeight-this.height &&
+      newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 &&
+      this.state != "chase" && val
+       == 2)
       {
-        var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
-        
-        if(closestDist === undefined || dist <= closestDist)
-        {
-          closestDist = dist;
-          lastDir = "down";
-          movement = new Vector2(0, -this.height);
-        }
-      }
-    }
-    if(this.facing != "right")
-    {
-      var newPos = new Vector2(this.position.X-this.width, this.position.Y);
-      
-      if(this.position.X - this.width > 0 &&
-      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 0 ||
-      this.position.X - this.width > 0 &&
-      this.state != "chase" && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 2)
-      {
-        var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
-        
-        if(closestDist === undefined || dist <= closestDist)
-        {
-          closestDist = dist;
-          lastDir = "left";
-          movement = new Vector2(-this.width, 0);
-        }
-      }
-    }
-    if(this.facing != "down")
-    {
-      var newPos = new Vector2(this.position.X, this.position.Y+this.height);
-      
-      if(this.position.Y + this.height < window.innerHeight-28 &&
-      this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 0 ||
-      this.position.X + this.width < window.innerWidth-28 &&
-      this.state != "chase" && this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2))) == 2)
-      {
-        var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
-        
-        if(closestDist === undefined || dist <= closestDist)
-        {
-          closestDist = dist;
-          lastDir = "up";
-          movement = new Vector2(0, this.height);
-        }
+        lastDir = invertDir(this.facing);
+        movement = new Vector2(getV2fromDir(lastDir).X * this.width, getV2fromDir(lastDir).Y * this.height);
       }
     }
     
@@ -376,6 +340,36 @@ class ClydeAI
       return this.target.position;
     else
       return this.level.position;
+  }
+}
+
+class Pellet
+{
+  constructor(level, position)
+  {
+    this.level = level;
+    this.position = position;
+    this.Init();
+  }
+  
+  Init()
+  {
+    this.Display = document.createElement("img");
+    document.getElementById("Content").appendChild(this.Display);
+    this.Display.src = "../Assets/Images/Pellet.png";
+    this.Display.style.width = this.level.cellSize;
+    this.Display.style.height = this.level.cellSize;
+    this.Display.style.position = "absolute";
+    this.Display.style.left = this.position.X;
+    this.Display.style.bottom = this.position.Y;
+  }
+  
+  collect()
+  {
+    this.Display.remove();
+    Score+=10;
+    updateScoreDisplay();
+    this.level.pellets.splice(this.level.pellets.indexOf(this), 1);
   }
 }
 
@@ -653,12 +647,16 @@ class Level
   
   createLevel()
   {
+    this.pellets = [];
+    
     for(var x = 0; x < this.size.X; x++)
     {
       for(var y = 0; y < this.size.Y; y++)
       {
-        if(this.getLevelValue(new Vector2(x, y)) != "0")
+        if(this.getLevelValue(new Vector2(x, y)) == 1 || this.getLevelValue(new Vector2(x, y) == 2))
           new Tile(this, new Vector2(this.position.X+x*this.cellSize, this.position.Y+y*this.cellSize), new Vector2(x, y));
+        else if(this.getLevelValue(new Vector2(x, y)) == 3)
+          this.pellets.push(new Pellet(this, new Vector2(this.position.X+x*this.cellSize, this.position.Y+y*this.cellSize)));
       }
     }
   }
@@ -694,39 +692,42 @@ class Level
   }
 }
 
-var UIdiv;
-var target1;
-var target2;
-var target3;
-var target4;
+var Score = 0;
 
 function Start()
 {
   setupFonts();
+  try
+  {
   setupUI();
+  }
+  catch(error)
+  {
+    LogError(error);
+  }
   
   var CurrentLevel = new Level([
   "11111111111111111111111",
-  "10000000000100000000001",
-  "10111011110101111011101",
-  "10111011110101111011101",
-  "10000000000000000000001",
-  "10111010111111101011101",
-  "10000010000100001000001",
-  "11111011110101111011111",
-  "11111010000000001011111",
-  "11111010111211101011111",
-  "00000000100000100000000",
-  "11111010111111101011111",
-  "11111010000000001011111",
-  "11111010111111101011111",
-  "10000000000100000000001",
-  "10111011110101111011101",
-  "10001000000000000010001",
-  "11101010111111101010111",
-  "10000010000100001000001",
-  "10111111110101111111101",
-  "10000000000000000000001",
+  "13333333333133333333331",
+  "13111311113131111311131",
+  "13111311113131111311131",
+  "13333333333333333333331",
+  "13111313111111131311131",
+  "13333313333133331333331",
+  "11111311110101111311111",
+  "11111310000000001311111",
+  "11111310111211101311111",
+  "33333300100000100333333",
+  "11111310111111101311111",
+  "11111310000000001311111",
+  "11111310111111101311111",
+  "13333333333133333333331",
+  "13111311113131111311131",
+  "13331333333333333313331",
+  "11131313111111131313111",
+  "13333313333133331333331",
+  "13111111113131111111131",
+  "13333333333333333333331",
   "11111111111111111111111"
   ], 28);
   
@@ -765,15 +766,33 @@ function setupFonts()
 
 function setupUI()
 {
-  UIdiv = document.createElement("div");
+  var UIdiv = document.createElement("div");
   document.getElementById("Content").appendChild(UIdiv);
   UIdiv.style.margin = "auto";
   UIdiv.style.width = "100%";
-  UIdiv.style.height = 60;
+  UIdiv.style.height = 200;
   UIdiv.style.color = "white";
-  var scoreText = document.createElement("p");
-  scoreText.style.fontFamily = "Main";
-  scoreText.style.fontSize = 16;
-  scoreText.innerHTML = "HIGH SCORE";
-  UIdiv.appendChild(scoreText);
+  var scoreDiv = document.createElement("div");
+  UIdiv.appendChild(scoreDiv);
+  scoreDiv.style.fontFamily = "Main";
+  scoreDiv.style.fontSize = 16;
+  scoreDiv.style.width = 200;
+  scoreDiv.style.textAlign = "center";
+  scoreDiv.style.margin = "auto 100px auto auto";
+  var scoreTitle = document.createElement("p");
+  scoreDiv.appendChild(scoreTitle);
+  scoreTitle.innerHTML = "HIGH SCORE";
+  var scoreDisplay = document.createElement("p");
+  scoreDiv.appendChild(scoreDisplay);
+  scoreDisplay.id = "Score";
+  scoreDisplay.style.color = "white";
+  updateScoreDisplay();
+}
+
+function updateScoreDisplay()
+{
+  if(Score.toString().length == 1)
+    document.getElementById("Score").innerHTML = "0" + Score;
+  else
+    document.getElementById("Score").innerHTML = Score;
 }
