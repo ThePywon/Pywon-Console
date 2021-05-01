@@ -94,9 +94,9 @@ class Pacman
       else if(this.position.X > this.level.position.X + this.level.size.X * this.level.cellSize - this.width)
         this.position.X = this.level.position.X;
       if(this.position.Y < this.level.position.Y)
-        this.position.Y = this.level.position.Y + this.level.size.Y;
-      else if(this.position.Y > this.level.position.Y + this.level.size.Y * this.level.cellSize - this.width)
-        this.position.Y = this.level.position.Y + this.level.size.Y * this.level.cellSize - this.width;
+        this.position.Y = this.level.position.Y + this.level.size.Y * this.level.cellSize - this.height;
+      else if(this.position.Y > this.level.position.Y + this.level.size.Y * this.level.cellSize - this.height)
+        this.position.Y = this.level.position.Y;
       this.Display.style.left = this.position.X;
       this.Display.style.bottom = this.position.Y;
       this.animate();
@@ -115,8 +115,23 @@ class Pacman
     facing.toLowerCase() == "left" ||
     facing.toLowerCase() == "up")
     {
-      this.facing = facing;
-      this.rotateDisplay();
+      if(this.facing != facing)
+      {
+        var val1 = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.width/2 + getV2fromDir(this.facing).X*this.level.cellSize, this.position.Y + this.height/2 + getV2fromDir(this.facing).Y*this.level.cellSize)));
+        
+        var val2 = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.width/2 + getV2fromDir(facing).X*this.level.cellSize, this.position.Y + this.height/2 + getV2fromDir(facing).Y*this.level.cellSize)));
+        
+        if((val1 == 0 || val1 == 3) && (val2 == 0 || val2 == 3) && this.facing != invertDir(facing))
+        {
+          var pos = this.level.getLevelIndex(new Vector2(this.position.X + this.width/2, this.position.Y + this.height/2));
+          this.position = new Vector2(pos.X * this.level.cellSize + this.level.position.X, pos.Y * this.level.cellSize + this.level.position.Y);
+        }
+        
+        this.facing = facing;
+        
+        this.rotateDisplay();
+      }
+      
     }
     else
       LogError("Invalid facing direction used in Pacman.rotate()");
@@ -253,9 +268,9 @@ class Ghost
       else if(this.position.X > this.level.position.X + this.level.size.X * this.level.cellSize - this.width)
         this.position.X = this.level.position.X;
       if(this.position.Y < this.level.position.Y)
-        this.position.Y = this.level.position.Y + this.level.size.Y;
+        this.position.Y = this.level.position.Y + this.level.size.Y * this.level.cellSize - this.height;
       else if(this.position.Y > this.level.position.Y + this.level.size.Y * this.level.cellSize - this.width)
-        this.position.Y = this.level.position.Y + this.level.size.Y * this.level.cellSize - this.width;
+        this.position.Y = this.level.position.Y;
       this.Display.style.left = this.position.X;
       this.Display.style.bottom = this.position.Y;
       this.animate();
@@ -748,13 +763,13 @@ function Start()
     }
   });
   
-  var Blinky = new Ghost(CurrentLevel, "Blinky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 12 * CurrentLevel.cellSize));
+  var Blinky = new Ghost(CurrentLevel, "Blinky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 11 * CurrentLevel.cellSize));
   Blinky.setAI(new BlinkyAI(PlayerInstance));
-  var Pinky = new Ghost(CurrentLevel, "Pinky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 12 * CurrentLevel.cellSize));
+  var Pinky = new Ghost(CurrentLevel, "Pinky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 11 * CurrentLevel.cellSize));
   Pinky.setAI(new PinkyAI(CurrentLevel, PlayerInstance));
-  var Inky = new Ghost(CurrentLevel, "Inky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 12 * CurrentLevel.cellSize));
+  var Inky = new Ghost(CurrentLevel, "Inky", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 11 * CurrentLevel.cellSize));
   Inky.setAI(new InkyAI(CurrentLevel, PlayerInstance, Blinky));
-  var Clyde = new Ghost(CurrentLevel, "Clyde", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 12 * CurrentLevel.cellSize));
+  var Clyde = new Ghost(CurrentLevel, "Clyde", new Vector2(CurrentLevel.position.X + 11 * CurrentLevel.cellSize, CurrentLevel.position.Y + 11 * CurrentLevel.cellSize));
   Clyde.setAI(new ClydeAI(CurrentLevel, Clyde, PlayerInstance));
 }
 
