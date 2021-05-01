@@ -319,7 +319,23 @@ function getV2fromDir(dir)
   else if(dir.toLowerCase() == "left")
     return new Vector2(-1, 0);
   else
-    LogError("Invalid position passed in getV2fromDir()");
+    LogError("Invalid direction passed in getV2fromDir()");
   
   return new Vector2();
+}
+
+function invertDir(dir)
+{
+  if(dir.toLowerCase() == "up")
+    return "down";
+  else if(dir.toLowerCase() == "right")
+    return "left";
+  else if(dir.toLowerCase() == "down")
+    return "up";
+  else if(dir.toLowerCase() == "left")
+    return "right"
+  else
+    LogError("Invalid direction passed in getV2fromDir()");
+  
+  return null;
 }
