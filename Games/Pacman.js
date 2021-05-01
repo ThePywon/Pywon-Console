@@ -441,186 +441,194 @@ class Tile
     {
       if(up && down && right && left && ul && ur && dl && dr)
         this.Display.style.display = "none";
-      
-      if(!up && !down && !right && !left)
+      else if(!up && !down && !right && !left)
         this.Display.src = "../Assets/Images/WallTileSingle.png";
-      
-      if(!up && down && right && left && dl && dr)
+      else if(!up && down && right && left && dl && dr)
         this.Display.src = "../Assets/Images/WallTileExposed.png";
-      
-      if(up && !down && right && left && ul && ur)
+      else if(up && !down && right && left && ul && ur)
       {
         this.Display.src = "../Assets/Images/WallTileExposed.png";
         this.Display.style.transform = "rotate(180deg)";
       }
-      
-      if(up && down && !right && left && ul && dl)
+      else if(up && down && !right && left && ul && dl)
       {
         this.Display.src = "../Assets/Images/WallTileExposed.png";
         this.Display.style.transform = "rotate(90deg)";
       }
-      
-      if(up && down && right && !left && ur && dr)
+      else if(up && down && right && !left && ur && dr)
       {
         this.Display.src = "../Assets/Images/WallTileExposed.png";
         this.Display.style.transform = "rotate(-90deg)";
       }
-      
-      if(!up && down && !right && left && dl)
+      else if(!up && down && !right && left && dl)
         this.Display.src = "../Assets/Images/WallTileOutsideSingleCorner.png";
-      
-      if(up && !down && !right && left && ul)
+      else if(up && !down && !right && left && ul)
       {
         this.Display.src = "../Assets/Images/WallTileOutsideSingleCorner.png";
         this.Display.style.transform = "rotate(90deg)";
       }
-      
-      if(up && !down && right && !left && ur)
+      else if(up && !down && right && !left && ur)
       {
         this.Display.src = "../Assets/Images/WallTileOutsideSingleCorner.png";
         this.Display.style.transform = "rotate(180deg)";
       }
-      
-      if(!up && down && right && !left && dr)
+      else if(!up && down && right && !left && dr)
       {
         this.Display.src = "../Assets/Images/WallTileOutsideSingleCorner.png";
         this.Display.style.transform = "rotate(-90deg)";
       }
-      
-      if(!up && down && !right && left && !dl)
+      else if(!up && down && !right && left && !dl)
       {
         this.Display.src = "../Assets/Images/WallTileOutsideDoubleCorner.png";
         this.Display.style.transform = "rotate(180deg)";
       }
-      
-      if(up && !down && !right && left && !ul)
+      else if(up && !down && !right && left && !ul)
       {
         this.Display.src = "../Assets/Images/WallTileOutsideDoubleCorner.png";
         this.Display.style.transform = "rotate(-90deg)";
       }
-      
-      if(up && !down && right && !left && !ur)
+      else if(up && !down && right && !left && !ur)
         this.Display.src = "../Assets/Images/WallTileOutsideDoubleCorner.png";
-      
-      if(!up && down && right && !left && !dr)
+      else if(!up && down && right && !left && !dr)
       {
         this.Display.src = "../Assets/Images/WallTileOutsideDoubleCorner.png";
         this.Display.style.transform = "rotate(90deg)";
       }
-      
-      if(up && down && right && left && ul && !ur && dl && dr)
+      else if(up && down && right && left && ul && !ur && dl && dr)
         this.Display.src = "../Assets/Images/WallTileSingleCorner.png";
-        
-      if(up && down && right && left && ul && ur && dl && !dr)
+      else if(up && down && right && left && ul && ur && dl && !dr)
       {
         this.Display.src = "../Assets/Images/WallTileSingleCorner.png";
         this.Display.style.transform = "rotate(90deg)";
       }
-      
-      if(up && down && right && left && ul && ur && !dl && dr)
+      else if(up && down && right && left && ul && ur && !dl && dr)
       {
         this.Display.src = "../Assets/Images/WallTileSingleCorner.png";
         this.Display.style.transform = "rotate(180deg)";
       }
-      
-      if(up && down && right && left && !ul && ur && dl && dr)
+      else if(up && down && right && left && !ul && ur && dl && dr)
       {
         this.Display.src = "../Assets/Images/WallTileSingleCorner.png";
         this.Display.style.transform = "rotate(-90deg)";
       }
-      
-      if(!up && down && right && left && !dl && dr)
+      else if(!up && down && right && left && !dl && dr)
         this.Display.src = "../Assets/Images/WallTileExposedSingleCorner.png";
-      
-      if(up && down && !right && left && !ul && dl)
+      else if(up && down && !right && left && !ul && dl)
       {
         this.Display.src = "../Assets/Images/WallTileExposedSingleCorner.png";
         this.Display.style.transform = "rotate(90deg)";
       }
-      
-      if(up && !down && right && left && ul && !ur)
+      else if(up && !down && right && left && ul && !ur)
       {
         this.Display.src = "../Assets/Images/WallTileExposedSingleCorner.png";
         this.Display.style.transform = "rotate(180deg)";
       }
-      
-      if(up && down && right && !left && ur && !dr)
+      else if(up && down && right && !left && ur && !dr)
       {
         this.Display.src = "../Assets/Images/WallTileExposedSingleCorner.png";
         this.Display.style.transform = "rotate(-90deg)";
       }
-      
-      if(!up && down && right && left && dl && !dr)
+      else if(!up && down && right && left && dl && !dr)
         this.Display.src = "../Assets/Images/WallTileExposedSingleCorner2.png";
-      
-      if(up && down && !right && left && ul && !dl)
+      else if(up && down && !right && left && ul && !dl)
       {
         this.Display.src = "../Assets/Images/WallTileExposedSingleCorner2.png";
         this.Display.style.transform = "rotate(90deg)";
       }
-      
-      if(up && !down && right && left && !ul && ur)
+      else if(up && !down && right && left && !ul && ur)
       {
         this.Display.src = "../Assets/Images/WallTileExposedSingleCorner2.png";
         this.Display.style.transform = "rotate(180deg)";
       }
-      
-      if(up && down && right && !left && !ur && dr)
+      else if(up && down && right && !left && !ur && dr)
       {
         this.Display.src = "../Assets/Images/WallTileExposedSingleCorner2.png";
         this.Display.style.transform = "rotate(-90deg)";
       }
-      
-      if(!up && down && right && left && !dl && !dr)
+      else if(!up && down && right && left && !dl && !dr)
         this.Display.src = "../Assets/Images/WallTileExposedDoubleCorner.png";
-      
-      if(up && down && !right && left && !ul && !dl)
+      else if(up && down && !right && left && !ul && !dl)
       {
         this.Display.src = "../Assets/Images/WallTileExposedDoubleCorner.png";
         this.Display.style.transform = "rotate(90deg)";
       }
-      
-      if(up && !down && right && left && !ul && !ur)
+      else if(up && !down && right && left && !ul && !ur)
       {
         this.Display.src = "../Assets/Images/WallTileExposedDoubleCorner.png";
         this.Display.style.transform = "rotate(180deg)";
       }
-      
-      if(up && down && right && !left && !ur && !dr)
+      else if(up && down && right && !left && !ur && !dr)
       {
         this.Display.src = "../Assets/Images/WallTileExposedDoubleCorner.png";
         this.Display.style.transform = "rotate(-90deg)";
       }
-      
-      if(up && down && !right && !left)
+      else if(up && down && !right && !left)
         this.Display.src = "../Assets/Images/WallTileLinear.png";
-      
-      if(!up && !down && right && left)
+      else if(!up && !down && right && left)
       {
         this.Display.src = "../Assets/Images/WallTileLinear.png";
         this.Display.style.transform = "rotate(90deg)";
       }
-      
-      if(!up && down && !right && !left)
+      else if(!up && down && !right && !left)
         this.Display.src = "../Assets/Images/WallTileBit.png";
-      
-      if(!up && !down && !right && left)
+      else if(!up && !down && !right && left)
       {
         this.Display.src = "../Assets/Images/WallTileBit.png";
         this.Display.style.transform = "rotate(90deg)";
       }
-      
-      if(up && !down && !right && !left)
+      else if(up && !down && !right && !left)
       {
         this.Display.src = "../Assets/Images/WallTileBit.png";
         this.Display.style.transform = "rotate(180deg)";
       }
-      
-      if(!up && !down && right && !left)
+      else if(!up && !down && right && !left)
       {
         this.Display.src = "../Assets/Images/WallTileBit.png";
         this.Display.style.transform = "rotate(-90deg)";
       }
+      else if(up && down && right && left && !ul && !ur && !dl && dr)
+        this.Display.src = "../Assets/Images/WallTileTripleCorner.png";
+      else if(up && down && right && left && !ul && !ur && dl && !dr)
+      {
+        this.Display.src = "../Assets/Images/WallTileTripleCorner.png";
+        this.Display.style.transform = "rotate(90deg)";
+      }
+      else if(up && down && right && left && ul && !ur && !dl && !dr)
+      {
+        this.Display.src = "../Assets/Images/WallTileTripleCorner.png";
+        this.Display.style.transform = "rotate(180deg)";
+      }
+      else if(up && down && right && left && !ul && ur && !dl && !dr)
+      {
+        this.Display.src = "../Assets/Images/WallTileTripleCorner.png";
+        this.Display.style.transform = "rotate(-90deg)";
+      }
+      else if(up && down && right && left && !ul && !ur && dl && dr)
+        this.Display.src = "../Assets/Images/WallTileDoubleCorner.png";
+      else if(up && down && right && left && ul && !ur && dl && !dr)
+      {
+        this.Display.src = "../Assets/Images/WallTileDoubleCorner.png";
+        this.Display.style.transform = "rotate(90deg)";
+      }
+      else if(up && down && right && left && ul && ur && !dl && !dr)
+      {
+        this.Display.src = "../Assets/Images/WallTileDoubleCorner.png";
+        this.Display.style.transform = "rotate(180deg)";
+      }
+      else if(up && down && right && left && !ul && ur && !dl && dr)
+      {
+        this.Display.src = "../Assets/Images/WallTileDoubleCorner.png";
+        this.Display.style.transform = "rotate(-90deg)";
+      }
+      else if(up && down && right && left && ul && !ur && !dl && dr)
+        this.Display.src = "../Assets/Images/WallTileCrossCorner.png";
+      else if(up && down && right && left && !ul && ur && dl && !dr)
+      {
+        this.Display.src = "../Assets/Images/WallTileCrossCorner.png";
+        this.Display.style.transform = "rotate(90deg)";
+      }
+      else if(up && down && right && left && !ul && !ur && !dl && !dr)
+        this.Display.src = "../Assets/Images/WallTileFullCorner.png";
     }
     else if(this.level.getLevelValue(this.levelIndex) == "2")
     {
@@ -720,28 +728,9 @@ function Start()
   }
   
   var CurrentLevel = new Level([
-  "11111111111111111111111",
-  "13333333333133333333331",
-  "13111311113131111311131",
-  "13111311113131111311131",
-  "13333333333333333333331",
-  "13111313111111131311131",
-  "13333313333133331333331",
-  "11111311110101111311111",
-  "11111310000000001311111",
-  "11111310111211101311111",
-  "33333300100000100333333",
-  "11111310111111101311111",
-  "11111310000000001311111",
-  "11111310111111101311111",
-  "13333333333133333333331",
-  "13111311113131111311131",
-  "13331333333333333313331",
-  "11131313111111131313111",
-  "13333313333133331333331",
-  "13111111113131111111131",
-  "13333333333333333333331",
-  "11111111111111111111111"
+  "110",
+  "111",
+  "011"
   ], 32);
   
   var PlayerInstance = new Pacman(CurrentLevel, new Vector2(11, 9));
