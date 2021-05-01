@@ -653,7 +653,7 @@ class Level
     {
       for(var y = 0; y < this.size.Y; y++)
       {
-        if(this.getLevelValue(new Vector2(x, y)) == 1 || this.getLevelValue(new Vector2(x, y) == 2))
+        if(this.getLevelValue(new Vector2(x, y)) == 1 || this.getLevelValue(new Vector2(x, y)) == 2)
           new Tile(this, new Vector2(this.position.X+x*this.cellSize, this.position.Y+y*this.cellSize), new Vector2(x, y));
         else if(this.getLevelValue(new Vector2(x, y)) == 3)
           this.pellets.push(new Pellet(this, new Vector2(this.position.X+x*this.cellSize, this.position.Y+y*this.cellSize)));
