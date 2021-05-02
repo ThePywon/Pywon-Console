@@ -47,6 +47,16 @@ class Pacman
           return;
         }
       }
+      //collect power pellets
+      for(var i = 0; i < Instance.level.powerPellets.length; i++)
+      {
+        if(Instance.level.getLevelIndex(new Vector2(Instance.level.powerPellets[i].position.X, Instance.level.powerPellets[i].position.Y)).Equals(Instance.level.getLevelIndex(new Vector2(Instance.position.X + Instance.width/2, Instance.position.Y + Instance.height/2))))
+        if(Math.sqrt(Math.pow(Instance.position.X - Instance.level.powerPellets[i].position.X, 2) + Math.pow(Instance.position.Y - Instance.level.powerPellets[i].position.Y, 2)) <= Instance.width/2)
+        {
+          Instance.level.powerPellets[i].collect();
+          return;
+        }
+      }
     }, 50)
   }
   
@@ -80,7 +90,7 @@ class Pacman
     var val4 = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + getV2fromDir(this.facing).X * this.speed+4, this.position.Y + getV2fromDir(this.facing).Y * this.speed + this.height-4)));
     
     if(this.position.X + getV2fromDir(this.facing).X * this.speed < window.innerWidth - this.width && this.position.Y + getV2fromDir(this.facing).Y * this.speed < window.innerHeight - this.height && this.position.X + getV2fromDir(this.facing).X * this.speed > 0 && this.position.Y + getV2fromDir(this.facing).Y * this.speed > 0 &&
-      (val1 == 0 || val1 == 3) && (val2 == 0 || val2 == 3) && (val3 == 0 || val3 == 3) && (val4 == 0 || val4 == 3))
+      (val1 == 0 || val1 == 3 || val1 == 4) && (val2 == 0 || val2 == 3 || val2 == 4) && (val3 == 0 || val3 == 3 || val3 == 4) && (val4 == 0 || val4 == 3 || val4 == 4))
     {
       movement.Add(new Vector2(getV2fromDir(this.facing).X*this.speed, getV2fromDir(this.facing).Y*this.speed));
     }
@@ -163,6 +173,7 @@ class Ghost
     this.height = 28;
     this.facing = facing;
     this.state = "chase";
+    this.stateTimer = 0;
     this.position = new Vector2(this.level.position.X + position.X * this.level.cellSize + this.level.cellSize/2 - this.width/2, this.level.position.Y + position.Y * this.level.cellSize + this.level.cellSize/2 - this.height/2);
     this.animIndex = 0;
     this.animTimer = 0;
@@ -187,6 +198,13 @@ class Ghost
     var Update = setInterval(function(){
       Instance.move();
     }, 1000/this.speed);
+    
+    var Timers = setInterval(function(){
+      if(Instance.state != "chase" && Instance.stateTimer > 0)
+        Instance.stateTimer--;
+      else if(Instance.state != "chase")
+        Instance.state = "chase";
+    }, 1000);
   }
   
   setAI(AI)
@@ -196,60 +214,112 @@ class Ghost
   
   move()
   {
-    //AI
-    
-    var targetPos = this.AI.getTargetPos();
-    
-    var movement = new Vector2();
-    var closestDist;
-    var lastDir;
-    
-    //Calculate direction
-    
     var dirs = ["right", "down", "left", "up"];
-    for(var i = 0; i < dirs.length; i++)
+    
+    if(this.state == "chase")
     {
-      if(invertDir(dirs[i]) != this.facing)
+      //AI
+    
+      var targetPos = this.AI.getTargetPos();
+      
+      var movement = new Vector2();
+      var closestDist;
+      var lastDir;
+      
+      //Calculate direction
+      
+      for(var i = 0; i < dirs.length; i++)
       {
-        var dir = dirs[i];
-        var newPos = new Vector2(this.position.X + (getV2fromDir(dir).X * this.level.cellSize), this.position.Y + (getV2fromDir(dir).Y * this.level.cellSize));
-        var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
-        
-        if(newPos.Y < window.innerHeight-this.level.cellSize &&
-        newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 && (val
-         == 0 || val == 3) ||
-        newPos.Y < window.innerHeight-this.level.cellSize &&
-        newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 &&
-        this.state != "chase" && val
-         == 2)
+        if(invertDir(dirs[i]) != this.facing)
         {
-          var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
+          var dir = dirs[i];
+          var newPos = new Vector2(this.position.X + (getV2fromDir(dir).X * this.level.cellSize), this.position.Y + (getV2fromDir(dir).Y * this.level.cellSize));
+          var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
           
-          if(closestDist === undefined || dist <= closestDist)
+          if(newPos.Y < window.innerHeight-this.level.cellSize &&
+          newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 && (val
+           == 0 || val == 3 || val == 4) ||
+          newPos.Y < window.innerHeight-this.level.cellSize &&
+          newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 &&
+          this.state != "chase" && val
+           == 2)
           {
-            closestDist = dist;
-            lastDir = dir;
-            movement = new Vector2(getV2fromDir(lastDir).X * this.level.cellSize, getV2fromDir(lastDir).Y * this.level.cellSize);
+            var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
+            
+            if(closestDist === undefined || dist <= closestDist)
+            {
+              closestDist = dist;
+              lastDir = dir;
+              movement = new Vector2(getV2fromDir(lastDir).X * this.level.cellSize, getV2fromDir(lastDir).Y * this.level.cellSize);
+            }
           }
         }
       }
-    }
-    
-    if(movement.Equals(new Vector2()))
-    {
-      var newPos = new Vector2(this.position.X + -(getV2fromDir(this.facing).X * this.width), this.position.Y + -(getV2fromDir(this.facing).Y * this.height));
-      var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
       
-      if(newPos.Y < window.innerHeight-this.height &&
-      newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 && (val
-       == 0 || val == 3) ||
-      newPos.Y < window.innerHeight-this.height &&
-      newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 &&
-      this.state != "chase" && val
-       == 2)
+      if(movement.Equals(new Vector2()))
       {
-        lastDir = invertDir(this.facing);
-        movement = new Vector2(getV2fromDir(lastDir).X * this.width, getV2fromDir(lastDir).Y * this.height);
+        var newPos = new Vector2(this.position.X + -(getV2fromDir(this.facing).X * this.width), this.position.Y + -(getV2fromDir(this.facing).Y * this.height));
+        var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
+        
+        if(newPos.Y < window.innerHeight-this.height &&
+        newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 && (val
+         == 0 || val == 3 || val == 4) ||
+        newPos.Y < window.innerHeight-this.height &&
+        newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 &&
+        this.state != "chase" && val
+         == 2)
+        {
+          lastDir = invertDir(this.facing);
+          movement = new Vector2(getV2fromDir(lastDir).X * this.level.cellSize, getV2fromDir(lastDir).Y * this.level.cellSize);
+        }
+      }
+    }
+    else if(this.state == "frightened")
+    {
+      var Choices = [];
+      for(var i = 0; i < dirs.length; i++)
+      {
+        if(invertDir(dirs[i]) != this.facing)
+        {
+          var dir = dirs[i];
+          var newPos = new Vector2(this.position.X + (getV2fromDir(dir).X * this.level.cellSize), this.position.Y + (getV2fromDir(dir).Y * this.level.cellSize));
+          var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
+          
+          if(newPos.Y < window.innerHeight-this.level.cellSize &&
+          newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 && (val
+           == 0 || val == 3 || val == 4) ||
+          newPos.Y < window.innerHeight-this.level.cellSize &&
+          newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 &&
+          this.state != "chase" && val
+           == 2)
+          {
+            Choices.push(dir);
+          }
+        }
+      }
+      
+      if(Choices.length > 0)
+      {
+        var Choice = parseInt(Math.random() * Choices.length);
+        lastDir = Choices[Choice];
+        movement = new Vector2(getV2fromDir(Choices[Choice]).X * this.level.cellSize, getV2fromDir(Choices[Choice]).Y * this.level.cellSize);
+      }
+      else
+      {
+        var newPos = new Vector2(this.position.X + -(getV2fromDir(this.facing).X * this.width), this.position.Y + -(getV2fromDir(this.facing).Y * this.height));
+        var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
+        
+        if(newPos.Y < window.innerHeight-this.height &&
+        newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 && (val
+         == 0 || val == 3 || val == 4) ||
+        newPos.Y < window.innerHeight-this.height &&
+        newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 &&
+        this.state != "chase" && val
+         == 2)
+        {
+          lastDir = invertDir(this.facing);
+          movement = new Vector2(getV2fromDir(lastDir).X * this.level.cellSize, getV2fromDir(lastDir).Y * this.level.cellSize);
+        }
       }
     }
     
@@ -282,17 +352,40 @@ class Ghost
   
   animate()
   {
-    if(this.animTimer > 0)
-      this.animTimer -= 1;
+    if(this.state == "frightened")
+    {
+      if(this.animIndex == 1 || this.animIndex == 3)
+        this.animIndex = 2;
+      else if(this.animIndex == 2 || this.animIndex == 4)
+        this.animIndex = 1;
+      
+      if(this.animTimer > 0)
+        this.animTimer -= 1;
+      else
+      {
+        this.animTimer = 2;
+        if(this.animIndex == 1)
+          this.animIndex = 3;
+        else
+          this.animIndex = 4;
+      }
+      
+      this.Display.src = "../Assets/Images/GhostFrightened" + (this.animIndex) + ".png";
+    }
     else
     {
-      this.animTimer = 0;
-      this.animIndex++;
-      if(this.animIndex >= 2)
-        this.animIndex = 0;
+      if(this.animTimer > 0)
+        this.animTimer -= 1;
+      else
+      {
+        this.animTimer = 0;
+        this.animIndex++;
+        if(this.animIndex >= 2)
+          this.animIndex = 0;
+      }
+      
+      this.Display.src = "../Assets/Images/" + this.name.toLowerCase() + this.facing.toLowerCase() + (this.animIndex+1) + ".png";
     }
-    
-    this.Display.src = "../Assets/Images/" + this.name.toLowerCase() + this.facing.toLowerCase() + (this.animIndex+1) + ".png";
   }
 }
 
@@ -383,6 +476,37 @@ class Pellet
     Score+=10;
     updateScoreDisplay();
     this.level.pellets.splice(this.level.pellets.indexOf(this), 1);
+  }
+}
+
+class PowerPellet
+{
+  constructor(level, position)
+  {
+    this.level = level;
+    this.position = position;
+    this.Init();
+  }
+  
+  Init()
+  {
+    this.Display = document.createElement("img");
+    document.getElementById("Content").appendChild(this.Display);
+    this.Display.src = "../Assets/Images/PowerPellet.png";
+    this.Display.style.width = this.level.cellSize;
+    this.Display.style.height = this.level.cellSize;
+    this.Display.style.position = "absolute";
+    this.Display.style.left = this.position.X;
+    this.Display.style.bottom = this.position.Y;
+  }
+  
+  collect()
+  {
+    this.Display.remove();
+    Score+=50;
+    updateScoreDisplay();
+    setGhostsState("frightened");
+    this.level.powerPellets.splice(this.level.powerPellets.indexOf(this), 1);
   }
 }
 
@@ -669,6 +793,7 @@ class Level
   createLevel()
   {
     this.pellets = [];
+    this.powerPellets = [];
     
     for(var x = 0; x < this.size.X; x++)
     {
@@ -678,6 +803,8 @@ class Level
           new Tile(this, new Vector2(this.position.X+x*this.cellSize, this.position.Y+y*this.cellSize), new Vector2(x, y));
         else if(this.getLevelValue(new Vector2(x, y)) == 3)
           this.pellets.push(new Pellet(this, new Vector2(this.position.X+x*this.cellSize, this.position.Y+y*this.cellSize)));
+        else if(this.getLevelValue(new Vector2(x, y)) == 4)
+          this.powerPellets.push(new PowerPellet(this, new Vector2(this.position.X+x*this.cellSize, this.position.Y+y*this.cellSize)));
       }
     }
   }
@@ -714,6 +841,7 @@ class Level
 }
 
 var Score = 0;
+var Ghosts = [];
 
 function Start()
 {
@@ -730,7 +858,7 @@ function Start()
   var CurrentLevel = new Level([
   "11111111111111111111111",
   "13333333333133333333331",
-  "13111311113131111311131",
+  "14111311113131111311141",
   "13111311113131111311131",
   "13333333333333333333331",
   "13111313111111131311131",
@@ -744,7 +872,7 @@ function Start()
   "11111310111111101311111",
   "13333333333133333333331",
   "13111311113131111311131",
-  "13331333333333333313331",
+  "14331333333333333313341",
   "11131313111111131313111",
   "13333313333133331333331",
   "13111111113131111111131",
@@ -777,6 +905,11 @@ function Start()
   Inky.setAI(new InkyAI(CurrentLevel, PlayerInstance, Blinky));
   var Clyde = new Ghost(CurrentLevel, "Clyde", new Vector2(11, 12));
   Clyde.setAI(new ClydeAI(CurrentLevel, Clyde, PlayerInstance));
+  
+  Ghosts.push(Blinky);
+  Ghosts.push(Pinky);
+  Ghosts.push(Inky);
+  Ghosts.push(Clyde);
 }
 
 function setupFonts()
@@ -816,4 +949,22 @@ function updateScoreDisplay()
     document.getElementById("Score").innerHTML = "0" + Score;
   else
     document.getElementById("Score").innerHTML = Score;
+}
+
+function setGhostsState(state)
+{
+  for(var i = 0; i < Ghosts.length; i++)
+  {
+    if(Ghosts[i].state != state)
+    {
+      Ghosts[i].state = state;
+      
+      if(state = "frightened")
+      {
+        Ghosts[i].facing = invertDir(Ghosts[i].facing);
+        Ghosts[i].speed = 1.5;
+        Ghosts[i].stateTimer = 10;
+      }
+    }
+  }
 }
