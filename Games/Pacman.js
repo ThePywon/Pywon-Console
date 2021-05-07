@@ -1,10 +1,11 @@
-const FileCheck = {run:(callback) => {window.IsReady=true;callback({name:"Pacman", author:"<a href='https://discord.gg/pdgUD7R2'>Pywon</a>", desc:"A classic remade in javascript."});}};
+const FileCheck = {run:(callback) => {window.IsReady=true;callback({name:"Pacman", author:"<a href='https://discord.gg/hNxF6Xux'>Pywon</a>", desc:"A classic remade in javascript."});}};
 
 class Pacman
 {
   constructor(level, position, facing = "up")
   {
     this.level = level;
+    this.state = "alive";
     this.width = 24;
     this.height = 24;
     this.speed = 5;
@@ -57,6 +58,32 @@ class Pacman
           return;
         }
       }
+      //Collide with ghosts
+      var PlayerRect = Instance.Display.getBoundingClientRect();
+      for(var i = 0; i < Ghosts.length; i++)
+      {
+          var GhostRect = Ghosts[i].Display.getBoundingClientRect();
+            
+          var overlap = !(PlayerRect.right < GhostRect.left ||
+                        PlayerRect.left > GhostRect.right ||
+                        PlayerRect.bottom < GhostRect.top ||
+                        PlayerRect.top > GhostRect.bottom)
+            
+          if(overlap)
+          {
+            if(Ghosts[i].state == "chase" && Instance.state != "dead")
+            {
+              Instance.state = "dead";
+              Instance.speed = 0;
+              Log("Pacman died!");
+            }
+            else if(Ghosts[i].state == "frightened")
+            {
+              Ghosts[i].state = "eaten";
+              Ghosts[i].speed = 4;
+            }
+          }
+      }
     }, 50)
   }
   
@@ -99,13 +126,13 @@ class Pacman
     {
       this.position.Add(movement);
       if(this.position.X < this.level.position.X)
-        this.position.X = this.level.position.X + this.level.size.X * this.level.cellSize - this.width;
+        teleport(this, new Vector2(this.level.position.X + this.level.size.X * this.level.cellSize - this.width, this.position.Y));
       else if(this.position.X > this.level.position.X + this.level.size.X * this.level.cellSize - this.width)
-        this.position.X = this.level.position.X;
+        teleport(this, new Vector2(this.level.position.X, this.position.Y));
       if(this.position.Y < this.level.position.Y)
-        this.position.Y = this.level.position.Y + this.level.size.Y * this.level.cellSize - this.height;
+        teleport(this, new Vector2(this.position.X, this.level.position.Y + this.level.size.Y * this.level.cellSize - this.height));
       else if(this.position.Y > this.level.position.Y + this.level.size.Y * this.level.cellSize - this.height)
-        this.position.Y = this.level.position.Y;
+        teleport(this, new Vector2(this.position.X, this.level.position.Y));
       this.Display.style.left = this.position.X;
       this.Display.style.bottom = this.position.Y;
       this.animate();
@@ -164,7 +191,7 @@ class Pacman
 
 class Ghost
 {
-  constructor(level, name, position, facing = "up")
+  constructor(level, name, position, recover, facing = "up")
   {
     this.level = level;
     this.name = name;
@@ -172,9 +199,11 @@ class Ghost
     this.width = 28;
     this.height = 28;
     this.facing = facing;
-    this.state = "chase";
+    this.state = "recover";
     this.stateTimer = 0;
     this.position = new Vector2(this.level.position.X + position.X * this.level.cellSize + this.level.cellSize/2 - this.width/2, this.level.position.Y + position.Y * this.level.cellSize + this.level.cellSize/2 - this.height/2);
+    this.recover = new Vector2(this.level.position.X + recover.X * this.level.cellSize + this.level.cellSize/2 - this.width/2, this.level.position.Y + recover.Y * this.level.cellSize + this.level.cellSize/2 - this.height/2);
+    this.spawnPos = new Vector2(this.position.X, this.position.Y);
     this.animIndex = 0;
     this.animTimer = 0;
     
@@ -194,16 +223,50 @@ class Ghost
     this.Display.style.transition = "bottom " + (1/this.speed) + "s linear, left " + (1/this.speed) + "s linear";
     
     var Instance = this;
+    var RecentSpeed = this.speed;
     
-    var Update = setInterval(function(){
+    var Update;
+    
+    var UF1 = function(){
+      if(Instance.speed != RecentSpeed)
+      {
+        clearInterval(Update);
+        Update = setInterval(UF2, 1000/Instance.speed);
+        Instance.Display.style.transition = "bottom " + (1/Instance.speed) + "s linear, left " + (1/Instance.speed) + "s linear";
+        RecentSpeed = Instance.speed;
+      }
       Instance.move();
-    }, 1000/this.speed);
+    }
+    
+    var UF2 = function(){
+      if(Instance.speed != RecentSpeed)
+      {
+        clearInterval(Update);
+        Update = setInterval(UF1, 1000/Instance.speed);
+        Instance.Display.style.transition = "bottom " + (1/Instance.speed) + "s linear, left " + (1/Instance.speed) + "s linear";
+        RecentSpeed = Instance.speed;
+      }
+      Instance.move();
+    }
+    
+    Update = setInterval(UF1, 1000/this.speed);
+    
+    var Animator = setInterval(function(){
+      Instance.animate();
+    }, 250/this.speed)
     
     var Timers = setInterval(function(){
-      if(Instance.state != "chase" && Instance.stateTimer > 0)
+      if(Instance.state != "chase" && Instance.stateTimer > 0 || Instance.state != "eaten" && Instance.stateTimer > 0 || Instance.state != "recover" && Instance.stateTimer > 0)
         Instance.stateTimer--;
-      else if(Instance.state != "chase")
+      else if(Instance.state != "chase" && Instance.state != "eaten" && Instance.state != "recover")
+      {
         Instance.state = "chase";
+        Instance.speed = 2.5;
+        if(Instance.animIndex == 1 || Instance.animIndex == 3)
+          Instance.animIndex = 0;
+        else if(Instance.animIndex == 2 || Instance.animIndex == 4)
+          Instance.animIndex = 1;
+      }
     }, 1000);
   }
   
@@ -216,11 +279,16 @@ class Ghost
   {
     var dirs = ["right", "down", "left", "up"];
     
-    if(this.state == "chase")
+    if(this.state == "chase" || this.state == "eaten" || this.state == "recover")
     {
       //AI
-    
-      var targetPos = this.AI.getTargetPos();
+      
+      if(this.state == "chase")
+        var targetPos = this.AI.getTargetPos();
+      else if(this.state == "eaten")
+        var targetPos = new Vector2(this.spawnPos.X, this.spawnPos.Y);
+      else if(this.state == "recover")
+        var targetPos = new Vector2(this.recover.X, this.recover.Y);
       
       var movement = new Vector2();
       var closestDist;
@@ -241,7 +309,7 @@ class Ghost
            == 0 || val == 3 || val == 4) ||
           newPos.Y < window.innerHeight-this.level.cellSize &&
           newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 &&
-          this.state != "chase" && val
+          (this.state == "eaten" || this.state == "recover") && val
            == 2)
           {
             var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
@@ -332,16 +400,27 @@ class Ghost
     {
       this.position.Add(movement);
       if(this.position.X < this.level.position.X)
-        this.position.X = this.level.position.X + this.level.size.X * this.level.cellSize - this.width;
+        teleport(this, new Vector2(this.level.position.X + this.level.size.X * this.level.cellSize - this.width, this.position.Y));
       else if(this.position.X > this.level.position.X + this.level.size.X * this.level.cellSize - this.width)
-        this.position.X = this.level.position.X;
+        teleport(this, new Vector2(this.level.position.X, this.position.Y));
       if(this.position.Y < this.level.position.Y)
-        this.position.Y = this.level.position.Y + this.level.size.Y * this.level.cellSize - this.height;
+        teleport(this, new Vector2(this.position.X, this.level.position.Y + this.level.size.Y * this.level.cellSize - this.height));
       else if(this.position.Y > this.level.position.Y + this.level.size.Y * this.level.cellSize - this.width)
-        this.position.Y = this.level.position.Y;
+        teleport(this, new Vector2(this.position.X, this.level.position.Y));
       this.Display.style.left = this.position.X;
       this.Display.style.bottom = this.position.Y;
-      this.animate();
+      if(this.level.getLevelIndex(new Vector2(this.position.X, this.position.Y)).Equals(this.level.getLevelIndex(new Vector2(this.spawnPos.X, this.spawnPos.Y))) && this.state == "eaten")
+      {
+        this.state = "recover";
+        this.speed = 2.5;
+      }
+      else if(this.level.getLevelIndex(new Vector2(this.position.X, this.position.Y)).Equals(this.level.getLevelIndex(new Vector2(this.recover.X, this.recover.Y))) && this.state == "recover")
+      {
+        this.state = "chase";
+        this.speed = 2.5;
+      }
+      if(this.name == "Pinky")
+        Log(this.state);
     }
     else
     {
@@ -372,7 +451,7 @@ class Ghost
       
       this.Display.src = "../Assets/Images/GhostFrightened" + (this.animIndex) + ".png";
     }
-    else
+    else if(this.state == "chase" || this.state == "recover")
     {
       if(this.animTimer > 0)
         this.animTimer -= 1;
@@ -385,6 +464,11 @@ class Ghost
       }
       
       this.Display.src = "../Assets/Images/" + this.name.toLowerCase() + this.facing.toLowerCase() + (this.animIndex+1) + ".png";
+    }
+    else if(this.state == "eaten")
+    {
+      //thats the image ._.
+      this.Display.src = "../Assets/Images/Eaten" + this.facing.toLowerCase() + ".png";
     }
   }
 }
@@ -400,6 +484,11 @@ class BlinkyAI
   {
     return this.target.position;
   }
+  
+  setTarget(target)
+  {
+    this.target = target;
+  }
 }
 
 class PinkyAI
@@ -413,6 +502,11 @@ class PinkyAI
   getTargetPos()
   {
     return new Vector2(this.target.position.X + getV2fromDir(this.target.facing).X * 4 * this.level.cellSize, this.target.position.Y + getV2fromDir(this.target.facing).Y * 4 * this.level.cellSize);
+  }
+  
+  setTarget(target)
+  {
+    this.target = target;
   }
 }
 
@@ -428,6 +522,16 @@ class InkyAI
   getTargetPos()
   {
     return new Vector2(this.target.position.X + getV2fromDir(this.target.facing).X * 2 * this.level.cellSize + -(this.other.position.X - (this.target.position.X + getV2fromDir(this.target.facing).X * 2 * this.level.cellSize)), this.target.position.Y + getV2fromDir(this.target.facing).Y * 2 * this.level.cellSize + -(this.other.position.Y - (this.target.position.Y + getV2fromDir(this.target.facing).Y * 2 * this.level.cellSize)));;
+  }
+  
+  setTarget(target)
+  {
+    this.target = target;
+  }
+  
+  setOther(other)
+  {
+    this.other = other;
   }
 }
 
@@ -446,6 +550,11 @@ class ClydeAI
       return this.target.position;
     else
       return this.level.position;
+  }
+  
+  setTarget(target)
+  {
+    this.target = target;
   }
 }
 
@@ -841,21 +950,16 @@ class Level
 }
 
 var Score = 0;
+var CurrentLevel;
+var PlayerInstance;
 var Ghosts = [];
 
 function Start()
 {
   setupFonts();
-  try
-  {
   setupUI();
-  }
-  catch(error)
-  {
-    LogError(error);
-  }
   
-  var CurrentLevel = new Level([
+  CurrentLevel = new Level([
   "11111111111111111111111",
   "13333333333133333333331",
   "14111311113131111311141",
@@ -880,7 +984,7 @@ function Start()
   "11111111111111111111111"
   ], 32);
   
-  var PlayerInstance = new Pacman(CurrentLevel, new Vector2(11, 9));
+  PlayerInstance = new Pacman(CurrentLevel, new Vector2(11, 9));
   
   document.addEventListener('keydown', function(event) {
     if(event.keyCode == 37) {
@@ -897,13 +1001,13 @@ function Start()
     }
   });
   
-  var Blinky = new Ghost(CurrentLevel, "Blinky", new Vector2(11, 12));
+  var Blinky = new Ghost(CurrentLevel, "Blinky", new Vector2(11, 11), new Vector2(11, 13));
   Blinky.setAI(new BlinkyAI(PlayerInstance));
-  var Pinky = new Ghost(CurrentLevel, "Pinky", new Vector2(11, 12));
+  var Pinky = new Ghost(CurrentLevel, "Pinky", new Vector2(11, 11), new Vector2(11, 13));
   Pinky.setAI(new PinkyAI(CurrentLevel, PlayerInstance));
-  var Inky = new Ghost(CurrentLevel, "Inky", new Vector2(11, 12));
+  var Inky = new Ghost(CurrentLevel, "Inky", new Vector2(11, 11), new Vector2(11, 13));
   Inky.setAI(new InkyAI(CurrentLevel, PlayerInstance, Blinky));
-  var Clyde = new Ghost(CurrentLevel, "Clyde", new Vector2(11, 12));
+  var Clyde = new Ghost(CurrentLevel, "Clyde", new Vector2(11, 11), new Vector2(11, 13));
   Clyde.setAI(new ClydeAI(CurrentLevel, Clyde, PlayerInstance));
   
   Ghosts.push(Blinky);
@@ -957,13 +1061,54 @@ function setGhostsState(state)
   {
     if(Ghosts[i].state != state)
     {
-      Ghosts[i].state = state;
-      
-      if(state = "frightened")
+      if(state == "frightened" && Ghosts[i].state != "eaten")
       {
-        Ghosts[i].facing = invertDir(Ghosts[i].facing);
-        Ghosts[i].speed = 1.5;
-        Ghosts[i].stateTimer = 10;
+        Ghosts[i].state = state;
+        
+        if(state == "frightened")
+        {
+          Ghosts[i].facing = invertDir(Ghosts[i].facing);
+          Ghosts[i].speed = 1.5;
+        }
+      }
+    }
+    
+    if(state == "frightened")
+      Ghosts[i].stateTimer = 10;
+    
+    Ghosts[i].animate();
+  }
+}
+
+function teleport(object, position)
+{
+  if(PlayerInstance == object)
+  {
+    PlayerInstance = new Pacman(CurrentLevel, CurrentLevel.getLevelIndex(new Vector2(position.X, position.Y)), object.facing);
+    object.Display.remove();
+    
+    for(var i = 0; i < Ghosts.length; i++)
+      Ghosts[i].AI.setTarget(PlayerInstance);
+  }
+  else
+  {
+    for(var i = 0; i < Ghosts.length; i++)
+    {
+      if(Ghosts[i] == object)
+      {
+        Ghosts[i] = new Ghost(CurrentLevel, object.name, CurrentLevel.getLevelIndex(new Vector2(position.X, position.Y)), object.facing);
+        //error below ._.
+        Ghosts[i].setAI(object.AI);
+        Ghosts[i].state = object.state;
+        Ghosts[i].stateTimer = object.stateTimer;
+        Ghosts[i].speed = object.speed;
+        Ghosts[i].spawnPos = object.spawnPos;
+        object.Display.remove();
+        
+        for(var _i = 0; _i < Ghosts.length; _i++)
+          if(Ghosts[_i].name.toLowerCase == "inky")
+            Ghosts[_i].AI.setOther(Ghosts[i]);
+        return;
       }
     }
   }
