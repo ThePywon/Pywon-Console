@@ -9,6 +9,8 @@ class Pacman
     this.width = 24;
     this.height = 24;
     this.speed = 5;
+    this.successionTimer = 0;
+    this.succession = 0;
     this.position = new Vector2(this.level.position.X + position.X * this.level.cellSize + this.level.cellSize/2 - this.width/2, this.level.position.Y + position.Y * this.level.cellSize + this.level.cellSize/2 - this.height/2);
     this.facing = facing;
     this.sprites = ["Pacman2", "Pacman3", "Pacman2", "Pacman1"];
@@ -58,32 +60,54 @@ class Pacman
           return;
         }
       }
-      //Collide with ghosts
-      var PlayerRect = Instance.Display.getBoundingClientRect();
-      for(var i = 0; i < Ghosts.length; i++)
+      //Check win state
+      if(Instance.level.pellets.length == 0 && Instance.level.powerPellets.length == 0)
       {
-          var GhostRect = Ghosts[i].Display.getBoundingClientRect();
-            
-          var overlap = !(PlayerRect.right < GhostRect.left ||
-                        PlayerRect.left > GhostRect.right ||
-                        PlayerRect.bottom < GhostRect.top ||
-                        PlayerRect.top > GhostRect.bottom)
-            
-          if(overlap)
-          {
-            if(Ghosts[i].state == "chase" && Instance.state != "dead")
-            {
-              Instance.state = "dead";
-              Instance.speed = 0;
-              Log("Pacman died!");
-            }
-            else if(Ghosts[i].state == "frightened")
-            {
-              Ghosts[i].state = "eaten";
-              Ghosts[i].speed = 4;
-            }
-          }
+        WinUI.hidden = false;
+        Gameover = true;
       }
+      //Collide with ghosts
+      if(Instance.state != "dead")
+      {
+        var PlayerRect = Instance.Display.getBoundingClientRect();
+        for(var i = 0; i < Ghosts.length; i++)
+        {
+            var GhostRect = Ghosts[i].Display.getBoundingClientRect();
+              
+            var overlap = !(PlayerRect.right < GhostRect.left ||
+                          PlayerRect.left > GhostRect.right ||
+                          PlayerRect.bottom < GhostRect.top ||
+                          PlayerRect.top > GhostRect.bottom)
+              
+            if(overlap)
+            {
+              if(Ghosts[i].state == "chase" || Instance.state == "recover")
+              {
+                Instance.state = "dead";
+                Instance.speed = 0;
+                Instance.animIndex = 0;
+                Instance.animTimer = 0;
+                Gameover = true;
+              }
+              else if(Ghosts[i].state == "frightened")
+              {
+                Ghosts[i].state = "eaten";
+                Ghosts[i].speed = 4;
+                Instance.successionTimer = 60;
+                Instance.succession++;
+                if(Instance.succession == 5)
+                  Instance.succession = 1;
+                Score+=200*(Instance.succession*2);
+                updateScoreDisplay();
+              }
+            }
+        }
+      }
+      //Succession timer go down
+      if(Instance.successionTimer > 0)
+        Instance.successionTimer--;
+      else
+        Instance.succession = 0;
     }, 50)
   }
   
@@ -139,53 +163,80 @@ class Pacman
     }
     else
     {
-      this.animIndex = 0;
-      this.Display.src = "../Assets/Images/" + this.sprites[this.animIndex] + ".png";
+      if(this.state == "alive")
+      {
+        this.animIndex = 0;
+        this.Display.src = "../Assets/Images/" + this.sprites[this.animIndex] + ".png";
+      }
+      else
+        this.animate();
     }
   }
   
   rotate(facing)
   {
-    if(facing.toLowerCase() == "right" ||
-    facing.toLowerCase() == "down" ||
-    facing.toLowerCase() == "left" ||
-    facing.toLowerCase() == "up")
+    if(this.state != "dead")
     {
-      if(this.facing != facing)
+      if(facing.toLowerCase() == "right" ||
+      facing.toLowerCase() == "down" ||
+      facing.toLowerCase() == "left" ||
+      facing.toLowerCase() == "up")
       {
-        var val1 = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.width/2 + getV2fromDir(this.facing).X*this.level.cellSize, this.position.Y + this.height/2 + getV2fromDir(this.facing).Y*this.level.cellSize)));
-        
-        var val2 = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.width/2 + getV2fromDir(facing).X*this.level.cellSize, this.position.Y + this.height/2 + getV2fromDir(facing).Y*this.level.cellSize)));
-        
-        if((val1 == 0 || val1 == 3) && (val2 == 0 || val2 == 3) && this.facing != invertDir(facing))
+        if(this.facing != facing)
         {
-          var pos = this.level.getLevelIndex(new Vector2(this.position.X + this.width/2, this.position.Y + this.height/2));
-          this.position = new Vector2(pos.X * this.level.cellSize + this.level.position.X + this.level.cellSize/2 - this.width/2, pos.Y * this.level.cellSize + this.level.position.Y + this.level.cellSize/2 - this.height/2);
+          var val1 = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.width/2 + getV2fromDir(this.facing).X*this.level.cellSize, this.position.Y + this.height/2 + getV2fromDir(this.facing).Y*this.level.cellSize)));
+          
+          var val2 = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(this.position.X + this.width/2 + getV2fromDir(facing).X*this.level.cellSize, this.position.Y + this.height/2 + getV2fromDir(facing).Y*this.level.cellSize)));
+          
+          if((val1 == 0 || val1 == 3) && (val2 == 0 || val2 == 3) && this.facing != invertDir(facing))
+          {
+            var pos = this.level.getLevelIndex(new Vector2(this.position.X + this.width/2, this.position.Y + this.height/2));
+            this.position = new Vector2(pos.X * this.level.cellSize + this.level.position.X + this.level.cellSize/2 - this.width/2, pos.Y * this.level.cellSize + this.level.position.Y + this.level.cellSize/2 - this.height/2);
+          }
+          
+          this.facing = facing;
+          
+          this.rotateDisplay();
         }
         
-        this.facing = facing;
-        
-        this.rotateDisplay();
       }
-      
+      else
+        LogError("Invalid facing direction used in Pacman.rotate()");
     }
-    else
-      LogError("Invalid facing direction used in Pacman.rotate()");
   }
   
   animate()
   {
-    if(this.animTimer > 0)
-      this.animTimer -= 1;
-    else
+    if(this.state == "alive")
     {
-      this.animTimer = 1;
-      this.animIndex++;
-      if(this.animIndex >= this.sprites.length)
-        this.animIndex = 0;
+      if(this.animTimer > 0)
+        this.animTimer -= 1;
+      else
+      {
+        this.animTimer = 1;
+        this.animIndex++;
+        if(this.animIndex >= this.sprites.length)
+          this.animIndex = 0;
+      }
+      
+      this.Display.src = "../Assets/Images/" + this.sprites[this.animIndex] + ".png";
     }
-    
-    this.Display.src = "../Assets/Images/" + this.sprites[this.animIndex] + ".png";
+    else if(this.state == "dead")
+    {
+      if(this.animTimer > 0)
+        this.animTimer -= 1;
+      else
+      {
+        this.animTimer = 3;
+        if(this.animIndex < 9)
+        this.animIndex++;
+      }
+      
+      this.Display.src = "../Assets/Images/PacmanDeath" + (this.animIndex) + ".png";
+      this.Display.style.transform = "rotate(0deg)";
+      this.Display.style.width = 30;
+      this.Display.style.height = 30;
+    }
   }
 }
 
@@ -279,114 +330,117 @@ class Ghost
   {
     var dirs = ["right", "down", "left", "up"];
     
-    if(this.state == "chase" || this.state == "eaten" || this.state == "recover")
+    var movement = new Vector2();
+    var closestDist;
+    var lastDir;
+    
+    if(!Gameover)
     {
-      //AI
-      
-      if(this.state == "chase")
-        var targetPos = this.AI.getTargetPos();
-      else if(this.state == "eaten")
-        var targetPos = new Vector2(this.spawnPos.X, this.spawnPos.Y);
-      else if(this.state == "recover")
-        var targetPos = new Vector2(this.recover.X, this.recover.Y);
-      
-      var movement = new Vector2();
-      var closestDist;
-      var lastDir;
-      
-      //Calculate direction
-      
-      for(var i = 0; i < dirs.length; i++)
+      if(this.state == "chase" || this.state == "eaten" || this.state == "recover")
       {
-        if(invertDir(dirs[i]) != this.facing)
+        //AI
+        
+        if(this.state == "chase")
+          var targetPos = this.AI.getTargetPos();
+        else if(this.state == "eaten")
+          var targetPos = new Vector2(this.spawnPos.X, this.spawnPos.Y);
+        else if(this.state == "recover")
+          var targetPos = new Vector2(this.recover.X, this.recover.Y);
+        
+        //Calculate direction
+        
+        for(var i = 0; i < dirs.length; i++)
         {
-          var dir = dirs[i];
-          var newPos = new Vector2(this.position.X + (getV2fromDir(dir).X * this.level.cellSize), this.position.Y + (getV2fromDir(dir).Y * this.level.cellSize));
-          var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
-          
-          if(newPos.Y < window.innerHeight-this.level.cellSize &&
-          newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 && (val
-           == 0 || val == 3 || val == 4) ||
-          newPos.Y < window.innerHeight-this.level.cellSize &&
-          newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 &&
-          (this.state == "eaten" || this.state == "recover") && val
-           == 2)
+          if(invertDir(dirs[i]) != this.facing)
           {
-            var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
+            var dir = dirs[i];
+            var newPos = new Vector2(this.position.X + (getV2fromDir(dir).X * this.level.cellSize), this.position.Y + (getV2fromDir(dir).Y * this.level.cellSize));
+            var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
             
-            if(closestDist === undefined || dist <= closestDist)
+            if(newPos.Y < window.innerHeight-this.level.cellSize &&
+            newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 && (val
+             == 0 || val == 3 || val == 4) ||
+            newPos.Y < window.innerHeight-this.level.cellSize &&
+            newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 &&
+            (this.state == "eaten" || this.state == "recover") && val
+             == 2)
             {
-              closestDist = dist;
-              lastDir = dir;
-              movement = new Vector2(getV2fromDir(lastDir).X * this.level.cellSize, getV2fromDir(lastDir).Y * this.level.cellSize);
+              var dist = Math.sqrt(Math.pow(newPos.X-targetPos.X, 2) + Math.pow(newPos.Y-targetPos.Y, 2));
+              
+              if(closestDist === undefined || dist <= closestDist)
+              {
+                closestDist = dist;
+                lastDir = dir;
+                movement = new Vector2(getV2fromDir(lastDir).X * this.level.cellSize, getV2fromDir(lastDir).Y * this.level.cellSize);
+              }
             }
           }
         }
-      }
-      
-      if(movement.Equals(new Vector2()))
-      {
-        var newPos = new Vector2(this.position.X + -(getV2fromDir(this.facing).X * this.width), this.position.Y + -(getV2fromDir(this.facing).Y * this.height));
-        var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
         
-        if(newPos.Y < window.innerHeight-this.height &&
-        newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 && (val
-         == 0 || val == 3 || val == 4) ||
-        newPos.Y < window.innerHeight-this.height &&
-        newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 &&
-        this.state != "chase" && val
-         == 2)
+        if(movement.Equals(new Vector2()))
         {
-          lastDir = invertDir(this.facing);
-          movement = new Vector2(getV2fromDir(lastDir).X * this.level.cellSize, getV2fromDir(lastDir).Y * this.level.cellSize);
-        }
-      }
-    }
-    else if(this.state == "frightened")
-    {
-      var Choices = [];
-      for(var i = 0; i < dirs.length; i++)
-      {
-        if(invertDir(dirs[i]) != this.facing)
-        {
-          var dir = dirs[i];
-          var newPos = new Vector2(this.position.X + (getV2fromDir(dir).X * this.level.cellSize), this.position.Y + (getV2fromDir(dir).Y * this.level.cellSize));
+          var newPos = new Vector2(this.position.X + -(getV2fromDir(this.facing).X * this.width), this.position.Y + -(getV2fromDir(this.facing).Y * this.height));
           var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
           
-          if(newPos.Y < window.innerHeight-this.level.cellSize &&
-          newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 && (val
+          if(newPos.Y < window.innerHeight-this.height &&
+          newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 && (val
            == 0 || val == 3 || val == 4) ||
-          newPos.Y < window.innerHeight-this.level.cellSize &&
-          newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 &&
+          newPos.Y < window.innerHeight-this.height &&
+          newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 &&
           this.state != "chase" && val
            == 2)
           {
-            Choices.push(dir);
+            lastDir = invertDir(this.facing);
+            movement = new Vector2(getV2fromDir(lastDir).X * this.level.cellSize, getV2fromDir(lastDir).Y * this.level.cellSize);
           }
         }
       }
-      
-      if(Choices.length > 0)
+      else if(this.state == "frightened")
       {
-        var Choice = parseInt(Math.random() * Choices.length);
-        lastDir = Choices[Choice];
-        movement = new Vector2(getV2fromDir(Choices[Choice]).X * this.level.cellSize, getV2fromDir(Choices[Choice]).Y * this.level.cellSize);
-      }
-      else
-      {
-        var newPos = new Vector2(this.position.X + -(getV2fromDir(this.facing).X * this.width), this.position.Y + -(getV2fromDir(this.facing).Y * this.height));
-        var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
-        
-        if(newPos.Y < window.innerHeight-this.height &&
-        newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 && (val
-         == 0 || val == 3 || val == 4) ||
-        newPos.Y < window.innerHeight-this.height &&
-        newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 &&
-        this.state != "chase" && val
-         == 2)
+        var Choices = [];
+        for(var i = 0; i < dirs.length; i++)
         {
-          lastDir = invertDir(this.facing);
-          movement = new Vector2(getV2fromDir(lastDir).X * this.level.cellSize, getV2fromDir(lastDir).Y * this.level.cellSize);
+          if(invertDir(dirs[i]) != this.facing)
+          {
+            var dir = dirs[i];
+            var newPos = new Vector2(this.position.X + (getV2fromDir(dir).X * this.level.cellSize), this.position.Y + (getV2fromDir(dir).Y * this.level.cellSize));
+            var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
+            
+            if(newPos.Y < window.innerHeight-this.level.cellSize &&
+            newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 && (val
+             == 0 || val == 3 || val == 4) ||
+            newPos.Y < window.innerHeight-this.level.cellSize &&
+            newPos.X < window.innerWidth-this.level.cellSize && newPos.Y > 0 && newPos.X > 0 &&
+            this.state != "chase" && val
+             == 2)
+            {
+              Choices.push(dir);
+            }
+          }
+        }
+        
+        if(Choices.length > 0)
+        {
+          var Choice = parseInt(Math.random() * Choices.length);
+          lastDir = Choices[Choice];
+          movement = new Vector2(getV2fromDir(Choices[Choice]).X * this.level.cellSize, getV2fromDir(Choices[Choice]).Y * this.level.cellSize);
+        }
+        else
+        {
+          var newPos = new Vector2(this.position.X + -(getV2fromDir(this.facing).X * this.width), this.position.Y + -(getV2fromDir(this.facing).Y * this.height));
+          var val = this.level.getLevelValue(this.level.getLevelIndex(new Vector2(newPos.X + this.width/2, newPos.Y + this.height/2)));
+          
+          if(newPos.Y < window.innerHeight-this.height &&
+          newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 && (val
+           == 0 || val == 3 || val == 4) ||
+          newPos.Y < window.innerHeight-this.height &&
+          newPos.X < window.innerWidth-this.width && newPos.Y > 0 && newPos.X > 0 &&
+          this.state != "chase" && val
+           == 2)
+          {
+            lastDir = invertDir(this.facing);
+            movement = new Vector2(getV2fromDir(lastDir).X * this.level.cellSize, getV2fromDir(lastDir).Y * this.level.cellSize);
+          }
         }
       }
     }
@@ -419,8 +473,6 @@ class Ghost
         this.state = "chase";
         this.speed = 2.5;
       }
-      if(this.name == "Pinky")
-        Log(this.state);
     }
     else
     {
@@ -953,6 +1005,8 @@ var Score = 0;
 var CurrentLevel;
 var PlayerInstance;
 var Ghosts = [];
+var WinUI;
+var Gameover = false;
 
 function Start()
 {
@@ -1014,6 +1068,8 @@ function Start()
   Ghosts.push(Pinky);
   Ghosts.push(Inky);
   Ghosts.push(Clyde);
+  
+  setupWinUI();
 }
 
 function setupFonts()
@@ -1045,6 +1101,25 @@ function setupUI()
   scoreDisplay.id = "Score";
   scoreDisplay.style.color = "white";
   updateScoreDisplay();
+}
+
+function setupWinUI()
+{
+  WinUI = document.createElement("div");
+  document.getElementById("Content").appendChild(WinUI);
+  WinUI.style.textAlign = "center";
+  WinUI.style.width = "100%";
+  WinUI.style.height = "100%";
+  WinUI.style.marginTop = 0;
+  WinUI.style.color = "white";
+  WinUI.style.textAlign = "left";
+  WinUI.style.fontFamily = "Main";
+  WinUI.style.fontSize = 32;
+  var WinText = document.createElement("a");
+  WinUI.appendChild(WinText);
+  WinText.style.marginTop = 0;
+  WinText.innerHTML = "You win!";
+  WinUI.hidden = true;
 }
 
 function updateScoreDisplay()
@@ -1096,7 +1171,7 @@ function teleport(object, position)
     {
       if(Ghosts[i] == object)
       {
-        Ghosts[i] = new Ghost(CurrentLevel, object.name, CurrentLevel.getLevelIndex(new Vector2(position.X, position.Y)), object.facing);
+        Ghosts[i] = new Ghost(CurrentLevel, object.name, CurrentLevel.getLevelIndex(new Vector2(position.X, position.Y)), new Vector2(object.recover.X, object.recover.Y), object.facing);
         //error below ._.
         Ghosts[i].setAI(object.AI);
         Ghosts[i].state = object.state;
