@@ -5,112 +5,385 @@ var Content = document.getElementById("Content");
 var CheckedValidity = false;
 var IsExecuting = false;
 
+class Exception
+{
+  constructor(message, reference = null)
+  {
+    this.reference = reference;
+    if(this.reference !== null)
+    {
+      if(typeof this.reference == "object")
+      {
+        try
+        {
+          this.message = "Exception in " + this.reference.constructor.name + " class:<br/>" + message.toString();
+        }
+        catch(error)
+        {
+          this.message = "Exception in " + this.reference.valueOf() + ":<br/>" + message.toString();
+        }
+        this.reference._isValid = false;
+      }
+      else
+        this.message = "Exception:<br/>" + message.toString();
+    }
+    else
+      this.message = "Exception:<br/>" + message.toString();
+    
+    this.init();
+  }
+  
+  init()
+  {
+    Exception.prototype.toString = function()
+    {
+      return this.message;
+    }
+    
+    Exception.prototype.valueOf = function()
+    {
+      return "Exception";
+    }
+    
+    this.LogError();
+  }
+  
+  LogError()
+  {
+    var BlankLog = document.getElementById("BlankLog");
+    
+    if(BlankLog !== null)
+      BlankLog.remove();
+    
+    var Logs = document.getElementById("Logs");
+    
+    var P = document.createElement("p")
+    P.className = "ErrLog";
+    P.innerHTML = this.toString();
+    
+    Logs.appendChild(P);
+    P.scrollIntoView(true);
+  }
+}
+
+class Dir2D
+{
+  constructor(val = "none")
+  {
+    this._isValid = true;
+    if(val.toLowerCase() == "none" || val.toLowerCase() == "left" || val.toLowerCase() == "up" || val.toLowerCase() == "right" || val.toLowerCase() == "down")
+      this.value = val.toLowerCase();
+    else
+    {
+      this.value = undefined;
+      new Exception("Passed value 'val' was not a valid value.<br/>Value: " + val, this);
+    }
+    
+    this.init();
+  }
+  
+  init()
+  {
+    Dir2D.prototype.toString = function()
+    {
+      return this.value;
+    }
+    
+    Dir2D.prototype.valueOf = function()
+    {
+      return "Dir2D";
+    }
+  }
+  
+  Equals(Dir)
+  {
+    if(Dir.valueOf() == "Dir2D")
+    {
+      if(this._isValid && Dir._isValid)
+        return this.value == Dir.value;
+      else
+      {
+        new Exception("Dir2D cannot compare with 'Dir' either because the passed value was invalid or because this value was invalid.");
+        return false;
+      }
+    }
+    else if(typeof Dir == "string")
+    {
+      if(this._isValid)
+        return this.value == Dir;
+      else
+      {
+        new Exception("Dir2D cannot compare with 'Dir' because this value was invalid.");
+        return false;
+      }
+    }
+    else
+    {
+      new Exception("Dir2D cannot compare with 'Dir' because it wasn't a value of type Dir2D nor a value of type string.");
+      return false;
+    }
+  }
+  
+  toVector2()
+  {
+    if(this._isValid)
+    {
+      if(this.value == "none")
+        return new Vector2();
+      else if (this.value == "left")
+        return new Vector2(-1, 0);
+      else if(this.value == "up")
+        return new Vector2(0, 1);
+      else if(this.value == "right")
+        return new Vector2(1, 0);
+      else if(this.value == "down")
+        return new Vector2(0, -1);
+    }
+    else
+    {
+      new Exception("Cannot parse Dir to Vector2 because the Dir was invalid.", this);
+      return null;
+    }
+  }
+  
+  toDeg()
+  {
+    if(this._isValid)
+    {
+      if(this.value == "none")
+        return null;
+      else if (this.value == "left")
+        return 180;
+      else if(this.value == "up")
+        return -90;
+      else if(this.value == "right")
+        return 0;
+      else if(this.value == "down")
+        return 90;
+    }
+    else
+    {
+      new Exception("Cannot parse Dir to degrees because the Dir was invalid.", this);
+      return null;
+    }
+  }
+}
+
 class Vector2
 {
   constructor(X = 0, Y = 0)
   {
-    this.X = X;
-    this.Y = Y;
+    Vector2.prototype.valueOf = function()
+    {
+      return "Vector2";
+    }
+    
+    this._isValid = true;
+    if(typeof X == "number")
+      this.X = X;
+    else
+    {
+      this.X = NaN;
+      new Exception("Passed value 'X' was not a number.<br/>Value type: " + typeof X, this);
+      return;
+    }
+    if(typeof Y == "number")
+      this.Y = Y;
+    else
+    {
+      this.Y = NaN;
+      new Exception("Passed value 'Y' was not a number.<br/>Value type: " + typeof Y, this);
+      this.init();
+      return;
+    }
+    
+    Vector2.prototype.toString = function()
+    {
+      if(!isNaN(this.X) && !isNaN(this.Y))
+        return "(" + this.X + ", " + this.Y +")";
+      else
+        return "<a style='color:red;'>[Vector2]</a>";
+    }
   }
   
-  Equals(value)
+  Equals(other)
   {
-    if(this.X == value.X && this.Y == value.Y)
-      return true;
+    if(other.valueOf() == "Vector2")
+    {
+      if(this._isValid && other._isValid)
+      {
+        if(other.X == this.X && other.Y == this.Y)
+          return true;
+        else
+          return false;
+      }
+      else
+      {
+        new Exception("Vector2 cannot compare with 'other' either because the passed value was invalid or because this value was invalid.");
+        return false;
+      }
+    }
     else
+    {
+      new Exception("Vector2 cannot compare with 'other' because is wasn't a value of type Vector2.");
       return false;
+    }
   }
   
   Add(value)
   {
-    if(value.X !== undefined && value.Y !== undefined)
+    if(value.valueOf() == "Vector2")
     {
-      this.X += value.X;
-      this.Y += value.Y;
-    }
-    else
-    {
-      if(typeof value == "object")
-        LogError("Vector2 cannot make an addition with an object of type " + value.constructor.name);
-      else
-        LogError("Vector2 cannot make an addition with a " + typeof value);
-    }
-  }
-  
-  Substract(value)
-  {
-    if(value.X !== undefined && value.Y !== undefined)
-    {
-      this.X -= value.X;
-      this.Y -= value.Y;
-    }
-    else
-    {
-      if(typeof value == "object")
-        LogError("Vector2 cannot make an substraction with an object of type " + value.constructor.name);
-      else
-        LogError("Vector2 cannot make an substraction with a " + typeof value);
-    }
-  }
-  
-  Multiply(value)
-  {
-    if(value.X !== undefined && value.Y !== undefined)
-    {
-      this.X *= value.X;
-      this.Y *= value.Y;
-    }
-    else
-    {
-      if(typeof value == "object")
-        LogError("Vector2 cannot make a multiplication with an object of type " + value.constructor.name);
-      else if(typeof value == "number")
+      if(this._isValid && value._isValid)
       {
-        this.X *= value;
-        this.Y *= value;
+        return new Vector2(this.X + value.X, this.Y + value.Y);
       }
       else
-        LogError("Vector2 cannot make a multiplication with a " + typeof value);
-    }
-  }
-  
-  Divide(value)
-  {
-    if(value.X !== undefined && value.Y !== undefined)
-    {
-      this.X /= value.X;
-      this.Y /= value.Y;
-    }
-    else
-    {
-      if(typeof value == "object")
-        LogError("Vector2 cannot make a multiplication with an object of type " + value.constructor.name);
-      else if(typeof value == "number")
       {
-        this.X /= value;
-        this.Y /= value;
+        new Exception("Vector2 cannot make an addition with 'other' either because the passed value was invalid or because this value was invalid.");
+        return null;
+      }
+    }
+    else if(typeof value == "number")
+    {
+      if(this._isValid)
+      {
+        return new Vector2(this.X + value, this.Y + value);
       }
       else
-        LogError("Vector2 cannot make a multiplication with a " + typeof value);
-    }
-  }
-  
-  Distance(vector2)
-  {
-    if(vector2.X !== undefined && vector2.Y !== undefined)
-    {
-      var thirdPoint = new Vector2(this.X, vector2.Y);
-      var a = Math.abs(thirdPoint.X - vector2.X);
-      var b = Math.abs(thirdPoint.Y - this.Y);
-      var c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
-      return c;
+      {
+        new Exception("Vector2 cannot make an addition with 'other' because this value was invalid.");
+        return null;
+      }
     }
     else
     {
-      if(typeof vector2 == "object")
-        LogError("Vector2 cannot calculate distance with an object of type " + value.constructor.name);
+      new Exception("Vector2 cannot make an addition with 'other' because is wasn't a value of type Vector2 nor a value of type number.");
+      return false;
+    }
+  }
+  
+  Sub(value)
+  {
+    if(value.valueOf() == "Vector2")
+    {
+      if(this._isValid && value._isValid)
+      {
+        return new Vector2(this.X - value.X, this.Y - value.Y);
+      }
       else
-        LogError("Vector2 cannot calculate distance with a " + typeof value);
+      {
+        new Exception("Vector2 cannot make an substraction with 'other' either because the passed value was invalid or because this value was invalid.");
+        return null;
+      }
+    }
+    else if(typeof value == "number")
+    {
+      if(this._isValid)
+      {
+        return new Vector2(this.X - value, this.Y - value);
+      }
+      else
+      {
+        new Exception("Vector2 cannot make an substraction with 'other' because this value was invalid.");
+        return null;
+      }
+    }
+    else
+    {
+      new Exception("Vector2 cannot make an substraction with 'other' because is wasn't a value of type Vector2 nor a value of type number.");
+      return false;
+    }
+  }
+  
+  Multi(value)
+  {
+    if(value.valueOf() == "Vector2")
+    {
+      if(this._isValid && value._isValid)
+      {
+        return new Vector2(this.X * value.X, this.Y * value.Y);
+      }
+      else
+      {
+        new Exception("Vector2 cannot make an multiplication with 'other' either because the passed value was invalid or because this value was invalid.");
+        return null;
+      }
+    }
+    else if(typeof value == "number")
+    {
+      if(this._isValid)
+      {
+        return new Vector2(this.X * value, this.Y * value);
+      }
+      else
+      {
+        new Exception("Vector2 cannot make an multiplication with 'other' because this value was invalid.");
+        return null;
+      }
+    }
+    else
+    {
+      new Exception("Vector2 cannot make an multiplication with 'other' because is wasn't a value of type Vector2 nor a value of type number.");
+      return false;
+    }
+  }
+  
+  Div(value)
+  {
+    if(value.valueOf() == "Vector2")
+    {
+      if(this._isValid && value._isValid)
+      {
+        return new Vector2(this.X / value.X, this.Y / value.Y);
+      }
+      else
+      {
+        new Exception("Vector2 cannot make an divide with 'other' either because the passed value was invalid or because this value was invalid.");
+        return null;
+      }
+    }
+    else if(typeof value == "number")
+    {
+      if(this._isValid)
+      {
+        return new Vector2(this.X / value, this.Y / value);
+      }
+      else
+      {
+        new Exception("Vector2 cannot make an divide with 'other' because this value was invalid.");
+        return null;
+      }
+    }
+    else
+    {
+      new Exception("Vector2 cannot make an divide with 'other' because is wasn't a value of type Vector2 nor a value of type number.");
+      return false;
+    }
+  }
+  
+  Dist(other)
+  {
+    if(other.valueOf() == "Vector2")
+    {
+      if(this._isValid && other._isValid)
+      {
+        var thirdPoint = new Vector2(this.X, other.Y);
+        var a = Math.abs(thirdPoint.X - other.X);
+        var b = Math.abs(thirdPoint.Y - this.Y);
+        var c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+        return c;
+      }
+      else
+      {
+        new Exception("Vector2 cannot calculate distance with 'other' either because the passed value was invalid or because this value was invalid.");
+        return null;
+      }
+    }
+    else
+    {
+      new Exception("Vector2 cannot calculate distance with 'other' because is wasn't a value of type 'Vector2'.");
+      return false;
     }
   }
 }
@@ -125,7 +398,7 @@ function Execute(name)
     
     if(window.IsReady)
     {
-      LogError("Cannot execute file because another one has already been executed.");
+      new Exception("Cannot execute file because another one has already been executed.");
       return;
     }
     
@@ -146,7 +419,7 @@ function Execute(name)
     }, 1000);
   }
   else
-    LogError("Already trying to execute a file.");
+    new Exception("Already trying to execute a file.");
 }
 
 function CheckValid(game = {})
@@ -157,7 +430,7 @@ function CheckValid(game = {})
   
   if (window.IsReady === undefined)
   {
-    LogError("Failed to execute '" + game.name + "'. This may be because file wasn't found or because file wasn't meant to be executed in that way.");
+    new Exception("Failed to execute '" + game.name + "'. This may be because file wasn't found or because file wasn't meant to be executed in that way.");
     return;
   }
   else
@@ -193,40 +466,23 @@ function ToggleConsole()
 }
 
 //Console Log system
-function Log(message, mainColor = "white")
+function Log(message, color = "white", scroll = true)
 {
-  BlankLog = document.getElementById("BlankLog");
+  var BlankLog = document.getElementById("BlankLog");
   
   if(BlankLog !== null)
     BlankLog.remove();
   
-  Logs = document.getElementById("Logs");
+  var Logs = document.getElementById("Logs");
   
-  P = document.createElement("p")
+  var P = document.createElement("p")
   P.className = "Log";
   P.innerHTML = message;
-  P.style.color = mainColor;
-  P.style.borderLeft = "2px solid " + mainColor;
+  P.style.color = color;
+  P.style.borderLeft = "2px solid " + color;
   
   Logs.appendChild(P);
-  P.scrollIntoView(true);
-}
-
-function LogError(message)
-{
-  BlankLog = document.getElementById("BlankLog");
-  
-  if(BlankLog !== null)
-    BlankLog.remove();
-  
-  Logs = document.getElementById("Logs");
-  
-  P = document.createElement("p")
-  P.className = "ErrLog";
-  P.innerHTML = message;
-  
-  Logs.appendChild(P);
-  P.scrollIntoView(true);
+  P.scrollIntoView(scroll);
 }
 
 //Keyboard Inputs
@@ -276,7 +532,7 @@ function DoCommand(message)
     for(var i = 0; i < args.length; i++)
       if(args[i] === "")
       {
-        LogError("One or more of the passed arguments returned undefined!");
+        new Exception("One or more of the passed arguments returned undefined!");
         return;
       }
     
@@ -285,7 +541,7 @@ function DoCommand(message)
       if(args.length == 2)
         Execute(args[1]);
       else
-        LogError("Invalid argument amount. Expected 1 argument.");
+        new Exception("Invalid argument amount. Expected 1 argument.");
       return;
     }
     else if(args[0].toLowerCase() == "clear")
@@ -297,11 +553,11 @@ function DoCommand(message)
       }
       else
       {
-        LogError("Invalid argument amount. Expected 1 argument.");
+        new Exception("Invalid argument amount. Expected 1 argument.");
         return;
       }
         
-    LogError("No command named '" + args[0] + "' exist.");
+    new Exception("No command named '" + args[0] + "' exist.");
   }
   else
     if(message.replace(/ /g, "") !== "")
@@ -319,7 +575,7 @@ function getV2fromDir(dir)
   else if(dir.toLowerCase() == "left")
     return new Vector2(-1, 0);
   else
-    LogError("Invalid direction passed in getV2fromDir()");
+    new Exception("Invalid direction passed in getV2fromDir()");
   
   return new Vector2();
 }
@@ -335,7 +591,17 @@ function invertDir(dir)
   else if(dir.toLowerCase() == "left")
     return "right"
   else
-    LogError("Invalid direction passed in getV2fromDir()");
+    new Exception("Invalid direction passed in getV2fromDir()");
   
   return null;
+}
+
+function readOnly(element)
+{
+  element.style.webkitTouchCallout = "none";
+  element.style.webkitUserSelect = "none";
+  element.style.khtmlUserSelect = "none";
+  element.style.mozUserSelect = "none";
+  element.style.msUserSelect = "none";
+  element.style.userSelect = "none";
 }
