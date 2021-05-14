@@ -4,7 +4,7 @@ var Toggle = document.getElementById("ConsoleToggle");
 var Content = document.getElementById("Content");
 var CheckedValidity = false;
 var IsExecuting = false;
-
+// thats the library :>
 class Exception
 {
   constructor(message, reference = null)
@@ -70,6 +70,11 @@ class Dir2D
 {
   constructor(val = "none")
   {
+    Dir2D.prototype.valueOf = function()
+    {
+      return "Dir2D";
+    }
+    
     this._isValid = true;
     if(val.toLowerCase() == "none" || val.toLowerCase() == "left" || val.toLowerCase() == "up" || val.toLowerCase() == "right" || val.toLowerCase() == "down")
       this.value = val.toLowerCase();
@@ -79,19 +84,12 @@ class Dir2D
       new Exception("Passed value 'val' was not a valid value.<br/>Value: " + val, this);
     }
     
-    this.init();
-  }
-  
-  init()
-  {
     Dir2D.prototype.toString = function()
     {
-      return this.value;
-    }
-    
-    Dir2D.prototype.valueOf = function()
-    {
-      return "Dir2D";
+      if(!isNaN(this.X) && !isNaN(this.Y))
+        return this.value;
+      else
+        return "<a style='color:red;'>[Dir2D]</a>";
     }
   }
   
@@ -124,6 +122,28 @@ class Dir2D
     }
   }
   
+  Invert()
+  {
+    if(this._isValid)
+    {
+      if(this.value == "none")
+        return new Dir("none");
+      else if (this.value == "left")
+        return new Dir("right");
+      else if(this.value == "up")
+        return new Dir("down");
+      else if(this.value == "right")
+        return new Dir("left");
+      else if(this.value == "down")
+        return new Dir("up");
+    }
+    else
+    {
+      new Exception("Cannot invert Dir2D because this Dir2D was invalid.", this);
+      return null;
+    }
+  }
+  
   toVector2()
   {
     if(this._isValid)
@@ -141,7 +161,7 @@ class Dir2D
     }
     else
     {
-      new Exception("Cannot parse Dir to Vector2 because the Dir was invalid.", this);
+      new Exception("Cannot parse Dir2D to Vector2 because the Dir was invalid.", this);
       return null;
     }
   }
@@ -163,7 +183,7 @@ class Dir2D
     }
     else
     {
-      new Exception("Cannot parse Dir to degrees because the Dir was invalid.", this);
+      new Exception("Cannot parse Dir2D to degrees because the Dir2D was invalid.", this);
       return null;
     }
   }
@@ -252,7 +272,7 @@ class Vector2
       }
       else
       {
-        new Exception("Vector2 cannot make an addition with 'other' because this value was invalid.");
+        new Exception("Vector2 cannot make an addition with 'other' because this Vector2 was invalid.", this);
         return null;
       }
     }
@@ -285,7 +305,7 @@ class Vector2
       }
       else
       {
-        new Exception("Vector2 cannot make an substraction with 'other' because this value was invalid.");
+        new Exception("Vector2 cannot make an substraction with 'other' because this Vector2 was invalid.", this);
         return null;
       }
     }
@@ -318,7 +338,7 @@ class Vector2
       }
       else
       {
-        new Exception("Vector2 cannot make an multiplication with 'other' because this value was invalid.");
+        new Exception("Vector2 cannot make an multiplication with 'other' because this Vector2 was invalid.", this);
         return null;
       }
     }
@@ -351,7 +371,7 @@ class Vector2
       }
       else
       {
-        new Exception("Vector2 cannot make an divide with 'other' because this value was invalid.");
+        new Exception("Vector2 cannot make an divide with 'other' because this Vector2 was invalid.", this);
         return null;
       }
     }
@@ -562,38 +582,6 @@ function DoCommand(message)
   else
     if(message.replace(/ /g, "") !== "")
       Log(message);
-}
-
-function getV2fromDir(dir)
-{
-  if(dir.toLowerCase() == "up")
-    return new Vector2(0, 1);
-  else if(dir.toLowerCase() == "right")
-    return new Vector2(1, 0);
-  else if(dir.toLowerCase() == "down")
-    return new Vector2(0, -1);
-  else if(dir.toLowerCase() == "left")
-    return new Vector2(-1, 0);
-  else
-    new Exception("Invalid direction passed in getV2fromDir()");
-  
-  return new Vector2();
-}
-
-function invertDir(dir)
-{
-  if(dir.toLowerCase() == "up")
-    return "down";
-  else if(dir.toLowerCase() == "right")
-    return "left";
-  else if(dir.toLowerCase() == "down")
-    return "up";
-  else if(dir.toLowerCase() == "left")
-    return "right"
-  else
-    new Exception("Invalid direction passed in getV2fromDir()");
-  
-  return null;
 }
 
 function readOnly(element)
