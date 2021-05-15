@@ -66,6 +66,63 @@ class Exception
   }
 }
 
+class Log
+{
+  constructor(message, color = "white", scroll = true)
+  {
+    this.message = message.toString();
+    this.color = color;
+    this.scroll = scroll;
+    
+    this.init();
+  }
+  
+  init()
+  {
+    Log.prototype.toString = function()
+    {
+      return this.message;
+    }
+    
+    Log.prototype.valueOf = function()
+    {
+      return "Log";
+    }
+    
+    this.Print();
+  }
+  
+  Print()
+  {
+    var BlankLog = document.getElementById("BlankLog");
+  
+    if(BlankLog !== null)
+      BlankLog.remove();
+    
+    var Logs = document.getElementById("Logs");
+    
+    this.Display = document.createElement("p")
+    this.Display.className = "Log";
+    this.Display.innerHTML = this.message;
+    this.Display.style.color = this.color;
+    this.Display.style.borderLeft = "2px solid " + this.color;
+    
+    Logs.appendChild(this.Display);
+    this.Display.scrollIntoView(this.scroll);
+  }
+  
+  Edit(message)
+  {
+    this.Display.innerHTML = message.toString();
+  }
+  
+  SetColor(color)
+  {
+    this.Display.style.color = color;
+    this.Display.style.borderLeft = "2px solid " + color;
+  }
+}
+
 class Dir2D
 {
   constructor(val = "none")
@@ -426,7 +483,7 @@ function Execute(name)
     Game.src = "../Games/" + name + ".js";
     document.getElementById("Games").appendChild(Game);
     
-    Log("Attempt to execute '" + name + "'.<br/>Please wait around 1 to 2 seconds to get a response.", "cyan");
+    new Log("Attempt to execute '" + name + "'.<br/>Please wait around 1 to 2 seconds to get a response.", "cyan");
     
     setTimeout(function(){
       Content.innerHTML = "<img id='Check' src='execute' onerror='FileCheck.run(function(value){CheckValid(value);})'/>";
@@ -464,7 +521,7 @@ function CheckValid(game = {})
     if(game.desc === undefined)
       game.desc = "*empty*"
     
-    Log("Successfully executed '" + game.name + "'!<br/>Made by " + game.author + "<br/>Description: " + game.desc, "lime");
+    new Log("Successfully executed '" + game.name + "'!<br/>Made by " + game.author + "<br/>Description: " + game.desc, "lime");
     Content.innerHTML = "<img id='StartCall' src='execute' onerror='Start()'/>";
     document.getElementById("StartCall").remove();
     return;
@@ -483,26 +540,6 @@ function ToggleConsole()
     Toggle.style.transform = "rotate(0deg)";
   else
     Toggle.style.transform = "rotate(180deg)";
-}
-
-//Console Log system
-function Log(message, color = "white", scroll = true)
-{
-  var BlankLog = document.getElementById("BlankLog");
-  
-  if(BlankLog !== null)
-    BlankLog.remove();
-  
-  var Logs = document.getElementById("Logs");
-  
-  var P = document.createElement("p")
-  P.className = "Log";
-  P.innerHTML = message;
-  P.style.color = color;
-  P.style.borderLeft = "2px solid " + color;
-  
-  Logs.appendChild(P);
-  P.scrollIntoView(scroll);
 }
 
 //Keyboard Inputs
@@ -581,7 +618,7 @@ function DoCommand(message)
   }
   else
     if(message.replace(/ /g, "") !== "")
-      Log(message);
+      new Log(message);
 }
 
 function readOnly(element)
