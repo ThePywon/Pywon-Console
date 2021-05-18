@@ -143,10 +143,21 @@ class Dir2D
     
     Dir2D.prototype.toString = function()
     {
-      if(!isNaN(this.X) && !isNaN(this.Y))
+      if(this._isValid)
         return this.value;
       else
         return "<a style='color:red;'>[Dir2D]</a>";
+    }
+  }
+  
+  New()
+  {
+    if(this._isValid)
+      return new Dir2D(this.value);
+    else
+    {
+      new Exception("Cannot create a new instance of Dir2D because this value was invalid.");
+      return null;
     }
   }
   
@@ -165,10 +176,10 @@ class Dir2D
     else if(typeof Dir == "string")
     {
       if(this._isValid)
-        return this.value == Dir;
+        return this.value == Dir.toLowerCase();
       else
       {
-        new Exception("Dir2D cannot compare with 'Dir' because this value was invalid.");
+        new Exception("Dir2D cannot compare with 'Dir' because this value was invalid.", this);
         return false;
       }
     }
@@ -184,15 +195,15 @@ class Dir2D
     if(this._isValid)
     {
       if(this.value == "none")
-        return new Dir("none");
+        return new Dir2D("none");
       else if (this.value == "left")
-        return new Dir("right");
+        return new Dir2D("right");
       else if(this.value == "up")
-        return new Dir("down");
+        return new Dir2D("down");
       else if(this.value == "right")
-        return new Dir("left");
+        return new Dir2D("left");
       else if(this.value == "down")
-        return new Dir("up");
+        return new Dir2D("up");
     }
     else
     {
@@ -280,6 +291,17 @@ class Vector2
         return "(" + this.X + ", " + this.Y +")";
       else
         return "<a style='color:red;'>[Vector2]</a>";
+    }
+  }
+  
+  New()
+  {
+    if(this._isValid)
+      return new Vector2(this.X, this.Y);
+    else
+    {
+      new Exception("Cannot create a new instance of Vector2 because this value was invalid.", this);
+      return null;
     }
   }
   
@@ -614,7 +636,7 @@ function DoCommand(message)
         return;
       }
         
-    new Exception("No command named '" + args[0] + "' exist.");
+    new Exception("No command named '" + args[0].toLowerCase() + "' exist.");
   }
   else
     if(message.replace(/ /g, "") !== "")
