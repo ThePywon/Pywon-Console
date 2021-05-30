@@ -134,10 +134,19 @@ class Dir2D
     
     this._isValid = true;
     if(val.toLowerCase() == "none" || val.toLowerCase() == "left" || val.toLowerCase() == "up" || val.toLowerCase() == "right" || val.toLowerCase() == "down")
+    {
       this.value = val.toLowerCase();
+      if(this.value == "up" || this.value == "down")
+        this.axis = "vertical";
+      else if(this.value == "left" || this.value == "right")
+        this.axis = "horizontal";
+      else
+        this.axis = "none";
+    }
     else
     {
       this.value = undefined;
+      this.axis = "none";
       new Exception("Passed value 'val' was not a valid value.<br/>Value: " + val, this);
     }
     
