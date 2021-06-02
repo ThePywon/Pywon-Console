@@ -7,7 +7,7 @@ var IsExecuting = false;
 // thats the library :>
 class Exception
 {
-  constructor(message, reference = null)
+  constructor(type, message, reference = null)
   {
     this.reference = reference;
     if(this.reference !== null)
@@ -16,25 +16,20 @@ class Exception
       {
         try
         {
-          this.message = "Exception in " + this.reference.constructor.name + " class:<br/>" + message.toString();
+          this.message = type + " exception in " + this.reference.constructor.name + " class:<br/>" + message.toString();
         }
         catch(error)
         {
-          this.message = "Exception in " + this.reference.valueOf() + ":<br/>" + message.toString();
+          this.message = type + " exception in " + this.reference.valueOf() + ":<br/>" + message.toString();
         }
         this.reference._isValid = false;
       }
       else
-        this.message = "Exception:<br/>" + message.toString();
+        this.message = type + " exception:<br/>" + message.toString();
     }
     else
-      this.message = "Exception:<br/>" + message.toString();
+      this.message = type + " exception:<br/>" + message.toString();
     
-    this.init();
-  }
-  
-  init()
-  {
     Exception.prototype.toString = function()
     {
       return this.message;
@@ -45,10 +40,10 @@ class Exception
       return "Exception";
     }
     
-    this.LogError();
+    this.Print();
   }
   
-  LogError()
+  Print()
   {
     var BlankLog = document.getElementById("BlankLog");
     
@@ -147,7 +142,7 @@ class Dir2D
     {
       this.value = undefined;
       this.axis = "none";
-      new Exception("Passed value 'val' was not a valid value.<br/>Value: " + val, this);
+      new Exception("Unexpected value", "Passed value was not a valid value.<br/>Value: " + val, this);
     }
     
     Dir2D.prototype.toString = function()
@@ -165,7 +160,7 @@ class Dir2D
       return new Dir2D(this.value);
     else
     {
-      new Exception("Cannot create a new instance of Dir2D because this value was invalid.");
+      new Exception("Invalid value", "Cannot create a new instance of Dir2D because this instance of Dir2D was invalid.");
       return null;
     }
   }
@@ -178,7 +173,7 @@ class Dir2D
         return this.value == Dir.value;
       else
       {
-        new Exception("Dir2D cannot compare with 'Dir' either because the passed value was invalid or because this value was invalid.");
+        new Exception("Invalid value", "Dir2D cannot compare with the passed value either because the passed value was invalid or because this instance of Dir2D was invalid.");
         return false;
       }
     }
@@ -188,13 +183,13 @@ class Dir2D
         return this.value == Dir.toLowerCase();
       else
       {
-        new Exception("Dir2D cannot compare with 'Dir' because this value was invalid.", this);
+        new Exception("Invalid value", "Dir2D cannot compare with the passed value because this instance of Dir2D was invalid.", this);
         return false;
       }
     }
     else
     {
-      new Exception("Dir2D cannot compare with 'Dir' because it wasn't a value of type Dir2D nor a value of type string.");
+      new Exception("Unexpected value", "Dir2D cannot compare with the passed value because the value wasn't a value of type Dir2D nor a value of type string.<br/>Value type: " + typeof Dir);
       return false;
     }
   }
@@ -216,7 +211,7 @@ class Dir2D
     }
     else
     {
-      new Exception("Cannot invert Dir2D because this Dir2D was invalid.", this);
+      new Exception("Invalid value", "Cannot invert Dir2D because this instance of Dir2D was invalid.", this);
       return null;
     }
   }
@@ -238,7 +233,7 @@ class Dir2D
     }
     else
     {
-      new Exception("Cannot parse Dir2D to Vector2 because the Dir was invalid.", this);
+      new Exception("Invalid value", "Cannot parse Dir2D to Vector2 because this instance of Dir2D was invalid.", this);
       return null;
     }
   }
@@ -260,7 +255,7 @@ class Dir2D
     }
     else
     {
-      new Exception("Cannot parse Dir2D to degrees because the Dir2D was invalid.", this);
+      new Exception("Invalid value", "Cannot parse Dir2D to degrees because this instance of Dir2D was invalid.", this);
       return null;
     }
   }
@@ -268,7 +263,7 @@ class Dir2D
 
 class Vector2
 {
-  constructor(X = 0, Y = 0)
+  constructor(x = 0, y = 0)
   {
     Vector2.prototype.valueOf = function()
     {
@@ -276,28 +271,25 @@ class Vector2
     }
     
     this._isValid = true;
-    if(typeof X == "number")
-      this.X = X;
+    if(typeof x == "number")
+      this.x = x;
     else
     {
-      this.X = NaN;
-      new Exception("Passed value 'X' was not a number.<br/>Value type: " + typeof X, this);
-      return;
+      this.x = NaN;
+      new Exception("Unexpected value", "Passed value 'x' was not a number.<br/>Value type: " + typeof x, this);
     }
-    if(typeof Y == "number")
-      this.Y = Y;
+    if(typeof y == "number")
+      this.y = y;
     else
     {
-      this.Y = NaN;
-      new Exception("Passed value 'Y' was not a number.<br/>Value type: " + typeof Y, this);
-      this.init();
-      return;
+      this.y = NaN;
+      new Exception("Unexpected value", "Passed value 'y' was not a number.<br/>Value type: " + typeof y, this);
     }
     
     Vector2.prototype.toString = function()
     {
-      if(!isNaN(this.X) && !isNaN(this.Y))
-        return "(" + this.X + ", " + this.Y +")";
+      if(!isNaN(this.x) && !isNaN(this.y))
+        return "(" + this.x + ", " + this.y +")";
       else
         return "<a style='color:red;'>[Vector2]</a>";
     }
@@ -306,10 +298,10 @@ class Vector2
   New()
   {
     if(this._isValid)
-      return new Vector2(this.X, this.Y);
+      return new Vector2(this.x, this.y);
     else
     {
-      new Exception("Cannot create a new instance of Vector2 because this value was invalid.", this);
+      new Exception("Invalid value", "Cannot create a new instance of Vector2 because this instance of Vector2 was invalid.", this);
       return null;
     }
   }
@@ -320,20 +312,20 @@ class Vector2
     {
       if(this._isValid && other._isValid)
       {
-        if(other.X == this.X && other.Y == this.Y)
+        if(other.x == this.x && other.y == this.y)
           return true;
         else
           return false;
       }
       else
       {
-        new Exception("Vector2 cannot compare with 'other' either because the passed value was invalid or because this value was invalid.");
+        new Exception("Invalid value", "Vector2 cannot compare with the passed value either because the value was invalid or because this instance of Vector2 was invalid.");
         return false;
       }
     }
     else
     {
-      new Exception("Vector2 cannot compare with 'other' because is wasn't a value of type Vector2.");
+      new Exception("Unexpected value", "Vector2 cannot compare with the passed value because the value wasn't a value of type Vector2.<br/>Value type: " + typeof other);
       return false;
     }
   }
@@ -344,11 +336,11 @@ class Vector2
     {
       if(this._isValid && value._isValid)
       {
-        return new Vector2(this.X + value.X, this.Y + value.Y);
+        return new Vector2(this.x + value.x, this.y + value.y);
       }
       else
       {
-        new Exception("Vector2 cannot make an addition with 'other' either because the passed value was invalid or because this value was invalid.");
+        new Exception("Invalid value", "Vector2 cannot make an addition with the passed value either because the value was invalid or because this instance of Vector2 was invalid.");
         return null;
       }
     }
@@ -356,18 +348,18 @@ class Vector2
     {
       if(this._isValid)
       {
-        return new Vector2(this.X + value, this.Y + value);
+        return new Vector2(this.x + value, this.y + value);
       }
       else
       {
-        new Exception("Vector2 cannot make an addition with 'other' because this Vector2 was invalid.", this);
+        new Exception("Invalid value", "Vector2 cannot make an addition with the passed value because this instance of Vector2 was invalid.", this);
         return null;
       }
     }
     else
     {
-      new Exception("Vector2 cannot make an addition with 'other' because is wasn't a value of type Vector2 nor a value of type number.");
-      return false;
+      new Exception("Unexpected value", "Vector2 cannot make an addition with the passed value because the value wasn't a value of type Vector2 nor a value of type number.<br/>Value type: " + typeof value);
+      return null;
     }
   }
   
@@ -377,11 +369,11 @@ class Vector2
     {
       if(this._isValid && value._isValid)
       {
-        return new Vector2(this.X - value.X, this.Y - value.Y);
+        return new Vector2(this.x - value.x, this.y - value.y);
       }
       else
       {
-        new Exception("Vector2 cannot make an substraction with 'other' either because the passed value was invalid or because this value was invalid.");
+        new Exception("Invalid value", "Vector2 cannot make an substraction with the passed value either because the value was invalid or because this instance of Vector2 was invalid.");
         return null;
       }
     }
@@ -389,18 +381,18 @@ class Vector2
     {
       if(this._isValid)
       {
-        return new Vector2(this.X - value, this.Y - value);
+        return new Vector2(this.x - value, this.y - value);
       }
       else
       {
-        new Exception("Vector2 cannot make an substraction with 'other' because this Vector2 was invalid.", this);
+        new Exception("Invalid value", "Vector2 cannot make an substraction with the passed value because this instance of Vector2 was invalid.", this);
         return null;
       }
     }
     else
     {
-      new Exception("Vector2 cannot make an substraction with 'other' because is wasn't a value of type Vector2 nor a value of type number.");
-      return false;
+      new Exception("Unexpected value", "Vector2 cannot make an substraction with the passed value because the value wasn't a value of type Vector2 nor a value of type number.<br/>Value type: " + typeof value);
+      return null;
     }
   }
   
@@ -410,11 +402,11 @@ class Vector2
     {
       if(this._isValid && value._isValid)
       {
-        return new Vector2(this.X * value.X, this.Y * value.Y);
+        return new Vector2(this.x * value.x, this.y * value.y);
       }
       else
       {
-        new Exception("Vector2 cannot make an multiplication with 'other' either because the passed value was invalid or because this value was invalid.");
+        new Exception("Invalid value", "Vector2 cannot make an multiplication with the passed value either because the value was invalid or because this instance of Vector2 was invalid.");
         return null;
       }
     }
@@ -422,18 +414,18 @@ class Vector2
     {
       if(this._isValid)
       {
-        return new Vector2(this.X * value, this.Y * value);
+        return new Vector2(this.x * value, this.y * value);
       }
       else
       {
-        new Exception("Vector2 cannot make an multiplication with 'other' because this Vector2 was invalid.", this);
+        new Exception("Invalid value", "Vector2 cannot make an multiplication with the passed value because this instance of Vector2 was invalid.", this);
         return null;
       }
     }
     else
     {
-      new Exception("Vector2 cannot make an multiplication with 'other' because is wasn't a value of type Vector2 nor a value of type number.");
-      return false;
+      new Exception("Unexpected value", "Vector2 cannot make an multiplication with the passed value because the value wasn't a value of type Vector2 nor a value of type number.<br/>Value type: " + typeof value);
+      return null;
     }
   }
   
@@ -443,11 +435,11 @@ class Vector2
     {
       if(this._isValid && value._isValid)
       {
-        return new Vector2(this.X / value.X, this.Y / value.Y);
+        return new Vector2(this.x / value.x, this.y / value.y);
       }
       else
       {
-        new Exception("Vector2 cannot make an divide with 'other' either because the passed value was invalid or because this value was invalid.");
+        new Exception("Invalid value", "Vector2 cannot divide with the passed value either because the value was invalid or because this instance of Vector2 was invalid.");
         return null;
       }
     }
@@ -455,18 +447,18 @@ class Vector2
     {
       if(this._isValid)
       {
-        return new Vector2(this.X / value, this.Y / value);
+        return new Vector2(this.x / value, this.y / value);
       }
       else
       {
-        new Exception("Vector2 cannot make an divide with 'other' because this Vector2 was invalid.", this);
+        new Exception("Invalid value", "Vector2 cannot divide with the passed value because this instance of Vector2 was invalid.", this);
         return null;
       }
     }
     else
     {
-      new Exception("Vector2 cannot make an divide with 'other' because is wasn't a value of type Vector2 nor a value of type number.");
-      return false;
+      new Exception("Invalid value", "Vector2 cannot divide with the passed value because the value wasn't a value of type Vector2 nor a value of type number.<br/>Value type: " + typeof value);
+      return null;
     }
   }
   
@@ -476,22 +468,258 @@ class Vector2
     {
       if(this._isValid && other._isValid)
       {
-        var thirdPoint = new Vector2(this.X, other.Y);
-        var a = Math.abs(thirdPoint.X - other.X);
-        var b = Math.abs(thirdPoint.Y - this.Y);
+        var thirdPoint = new Vector2(this.x, other.y);
+        var a = Math.abs(thirdPoint.x - other.x);
+        var b = Math.abs(thirdPoint.y - this.y);
         var c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
         return c;
       }
       else
       {
-        new Exception("Vector2 cannot calculate distance with 'other' either because the passed value was invalid or because this value was invalid.");
+        new Exception("Invalid value", "Vector2 cannot calculate distance with the passed value either because the value was invalid or because this instance of Vector2 was invalid.");
         return null;
       }
     }
     else
     {
-      new Exception("Vector2 cannot calculate distance with 'other' because is wasn't a value of type 'Vector2'.");
+      new Exception("Unexpected value", "Vector2 cannot calculate distance with the passed value because is wasn't a value of type Vector2.<br/>Value type: " + typeof other);
+      return null;
+    }
+  }
+}
+
+class Vector3
+{
+  constructor(x = 0, y = 0, z = 0)
+  {
+    Vector3.prototype.valueOf = function()
+    {
+      return "Vector3";
+    }
+    
+    this._isValid = true;
+    if(typeof x == "number")
+      this.x = x;
+    else
+    {
+      this.x = NaN;
+      new Exception("Unexpected value", "Passed value 'x' was not a number.<br/>Value type: " + typeof x, this);
+    }
+    if(typeof y == "number")
+      this.y = y;
+    else
+    {
+      this.y = NaN;
+      new Exception("Unexpected value", "Passed value 'y' was not a number.<br/>Value type: " + typeof y, this);
+    }
+    if(typeof z == "number")
+      this.z = z;
+    else
+    {
+      this.z = NaN;
+      new Exception("Unexpected value", "Passed value 'z' was not a number.<br/>Value type: " + typeof z, this);
+    }
+    
+    Vector3.prototype.toString = function()
+    {
+      if(!isNaN(this.x) && !isNaN(this.y) && !isNaN(this.z))
+        return "(" + this.x + ", " + this.y + ", " + this.z +")";
+      else
+        return "<a style='color:red;'>[Vector3]</a>";
+    }
+  }
+  
+  New()
+  {
+    if(this._isValid)
+      return new Vector3(this.x, this.y, this.z);
+    else
+    {
+      new Exception("Invalid value", "Cannot create a new instance of Vector3 because this instance of Vector3 was invalid.", this);
+      return null;
+    }
+  }
+  
+  Equals(other)
+  {
+    if(other.valueOf() == "Vector3")
+    {
+      if(this._isValid && other._isValid)
+      {
+        if(other.x == this.x && other.y == this.y && other.z == this.z)
+          return true;
+        else
+          return false;
+      }
+      else
+      {
+        new Exception("Invalid value", "Vector3 cannot compare with the passed value either because the value was invalid or because this instance of Vector3 was invalid.");
+        return false;
+      }
+    }
+    else
+    {
+      new Exception("Unexpected value", "Vector3 cannot compare with the passed value because is wasn't a value of type Vector3.<br/>Value type: " + typeof other);
       return false;
+    }
+  }
+  
+  Add(value)
+  {
+    if(value.valueOf() == "Vector3")
+    {
+      if(this._isValid && value._isValid)
+      {
+        return new Vector3(this.x + value.x, this.y + value.y, this.z + value.z);
+      }
+      else
+      {
+        new Exception("Invalid value", "Vector3 cannot make an addition with the passed value either because the value was invalid or because this instance of Vector3 was invalid.");
+        return null;
+      }
+    }
+    else if(typeof value == "number")
+    {
+      if(this._isValid)
+      {
+        return new Vector3(this.x + value, this.y + value, this.z + value);
+      }
+      else
+      {
+        new Exception("Invalid value", "Vector3 cannot make an addition with the passed value because this instance of Vector3 was invalid.", this);
+        return null;
+      }
+    }
+    else
+    {
+      new Exception("Unexpected value", "Vector3 cannot make an addition with the passed value because the value wasn't a value of type Vector3 nor a value of type number.<br/>Value type: " + typeof value);
+      return null;
+    }
+  }
+  
+  Sub(value)
+  {
+    if(value.valueOf() == "Vector3")
+    {
+      if(this._isValid && value._isValid)
+      {
+        return new Vector3(this.x - value.x, this.y - value.y, this.z - value.z);
+      }
+      else
+      {
+        new Exception("Invalid value", "Vector3 cannot make an substraction with the passed value either because the value was invalid or because this instance of Vector3 was invalid.");
+        return null;
+      }
+    }
+    else if(typeof value == "number")
+    {
+      if(this._isValid)
+      {
+        return new Vector3(this.x - value, this.y - value, this.z - value);
+      }
+      else
+      {
+        new Exception("Invalid value", "Vector3 cannot make an substraction with the passed value because this instance of Vector3 was invalid.", this);
+        return null;
+      }
+    }
+    else
+    {
+      new Exception("Unexpected value", "Vector3 cannot make an substraction with the passed value because the value wasn't a value of type Vector3 nor a value of type number.<br/>Value type: " + typeof value);
+      return null;
+    }
+  }
+  
+  Multi(value)
+  {
+    if(value.valueOf() == "Vector3")
+    {
+      if(this._isValid && value._isValid)
+      {
+        return new Vector3(this.x * value.x, this.y * value.y, this.z * value.z);
+      }
+      else
+      {
+        new Exception("Invalid value", "Vector3 cannot make an multiplication with the passed value either because the value was invalid or because this instance of Vector3 was invalid.");
+        return null;
+      }
+    }
+    else if(typeof value == "number")
+    {
+      if(this._isValid)
+      {
+        return new Vector3(this.x * value, this.y * value, this.z * value);
+      }
+      else
+      {
+        new Exception("Invalid value", "Vector3 cannot make an multiplication with the passed value because this instance of Vector3 was invalid.", this);
+        return null;
+      }
+    }
+    else
+    {
+      new Exception("Unexpected value", "Vector3 cannot make an multiplication with the passed value because is wasn't a value of type Vector3 nor a value of type number.<br/>Value type: " + typeof value);
+      return null;
+    }
+  }
+  
+  Div(value)
+  {
+    if(value.valueOf() == "Vector3")
+    {
+      if(this._isValid && value._isValid)
+      {
+        return new Vector3(this.x / value.x, this.y / value.y, this.z / value.z);
+      }
+      else
+      {
+        new Exception("Invalid value", "Vector3 cannot divide with the passed value either because the value was invalid or because this instance of Vector3 was invalid.");
+        return null;
+      }
+    }
+    else if(typeof value == "number")
+    {
+      if(this._isValid)
+      {
+        return new Vector3(this.x / value, this.y / value, this.z / value);
+      }
+      else
+      {
+        new Exception("Invalid value", "Vector3 cannot divide with the passed value because this instance of Vector3 was invalid.", this);
+        return null;
+      }
+    }
+    else
+    {
+      new Exception("Unexpected value", "Vector3 cannot divide with the passed value because is wasn't a value of type Vector3 nor a value of type number.<br/>Value type: " + typeof value);
+      return null;
+    }
+  }
+  
+  Dist(other)
+  {
+    if(other.valueOf() == "Vector3")
+    {
+      if(this._isValid && other._isValid)
+      {
+        var thirdPoint = new Vector3(this.x, other.y, other.z);
+        var a = Math.abs(thirdPoint.x - other.x);
+        var b = Math.abs(thirdPoint.y - this.y);
+        var c = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+        var d = Math.abs(thirdPoint.z - this.z);
+        var e = Math.sqrt(Math.pow(c, 2) + Math.pow(d, 2));
+        return e;
+      }
+      else
+      {
+        new Exception("Invalid value", "Vector3 cannot calculate distance with the passed value either because the value was invalid or because this instance of Vector3 was invalid.");
+        return null;
+      }
+    }
+    else
+    {
+      new Exception("Unexpected value", "Vector3 cannot calculate distance with the passed value because the value wasn't a value of type Vector3.<br/>Value type: " + typeof other);
+      return null;
     }
   }
 }
@@ -506,7 +734,7 @@ function Execute(name)
     
     if(window.IsReady)
     {
-      new Exception("Cannot execute file because another one has already been executed.");
+      new Exception("File execution", "Cannot execute file because another one has already been executed.");
       return;
     }
     
@@ -527,7 +755,7 @@ function Execute(name)
     }, 1000);
   }
   else
-    new Exception("Already trying to execute a file.");
+    new Exception("File execution", "Already trying to execute a file.");
 }
 
 function CheckValid(game = {})
@@ -538,7 +766,7 @@ function CheckValid(game = {})
   
   if (window.IsReady === undefined)
   {
-    new Exception("Failed to execute '" + game.name + "'. This may be because file wasn't found or because file wasn't meant to be executed in that way.");
+    new Exception("File execution", "Failed to execute '" + game.name + "'. This may be because file wasn't found or because file wasn't meant to be executed in that way.");
     return;
   }
   else
@@ -620,7 +848,7 @@ function DoCommand(message)
     for(var i = 0; i < args.length; i++)
       if(args[i] === "")
       {
-        new Exception("One or more of the passed arguments returned undefined!");
+        new Exception("Console command", "One or more of the passed arguments returned undefined!");
         return;
       }
     
@@ -629,7 +857,7 @@ function DoCommand(message)
       if(args.length == 2)
         Execute(args[1]);
       else
-        new Exception("Invalid argument amount. Expected 1 argument.");
+        new Exception("Console command", "Invalid argument amount. Expected 1 argument.");
       return;
     }
     else if(args[0].toLowerCase() == "clear")
@@ -641,11 +869,11 @@ function DoCommand(message)
       }
       else
       {
-        new Exception("Invalid argument amount. Expected 1 argument.");
+        new Exception("Console command", "Invalid argument amount. Expected 1 argument.");
         return;
       }
         
-    new Exception("No command named '" + args[0].toLowerCase() + "' exist.");
+    new Exception("Console command", "No command named '" + args[0].toLowerCase() + "' exist.");
   }
   else
     if(message.replace(/ /g, "") !== "")
