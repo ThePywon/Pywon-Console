@@ -1133,3 +1133,20 @@ function normalize(value, min, max)
     new Exception("Unexpected value", "Cannot normalize value becauses one or more of the passed values weren't values of type number.");
   }
 }
+
+function clamp(value, min, max)
+{
+  if(typeof value == "number" && typeof min == "number" && typeof max == "number")
+  {
+    if(value < min)
+      return min;
+    else if(value > max)
+      return max;
+    else
+      return value;
+  }
+  else
+  {
+    new Exception("Unexpected value", "Cannot clamp value becauses one or more of the passed values weren't values of type number.");
+  }
+}
