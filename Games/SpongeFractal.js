@@ -1,4 +1,4 @@
-const FileCheck = {run:(callback) => {window.IsReady=true;callback({name:"Menger Sponge Fractal", author:"<a href='https://discord.gg/tDb3DP3C'>Pywon</a>", desc:"Fractal.<br/>(do NOT press the screen more than 5 times)"});}};
+window.Game = {name:"Menger Sponge Fractal", author:"<a href='https://discord.gg/tDb3DP3C'>Pywon</a>", desc:"Fractal.<br/>(do NOT press the screen more than 5 times)"};
 
 class Frac
 {
@@ -11,12 +11,10 @@ class Frac
   
   init()
   {
-    this.display = new Box(this.position.new(), this.size.new());
-  }
-  
-  show()
-  {
-    this.display.update();
+    //var r = random(0, 255);
+    //var g = random(0, 255);
+    //var b = random(0, 255);
+    this.display = new Box(this.position.new(), this.size.new()/*, "rgb(" + r + ", " + g + ", " + b + ")"*/);
   }
   
   generate()
@@ -47,20 +45,9 @@ var sponge = [];
 function Start()
 {
   var pos = new Vector2(window.innerWidth, window.innerHeight).div(2);
-  var size = new Vector2(200, 200);
+  var size = new Vector2(243, 243);
   box = new Frac(pos.sub(size.div(2)), size.new());
   sponge.push(box);
-  var Update = setInterval(function(){
-    draw();
-  }, 50);
-}
-
-function draw()
-{
-  for(var b = 0; b < sponge.length; b++)
-  {
-    sponge[b].show();
-  }
 }
 
 content.onclick = function()
