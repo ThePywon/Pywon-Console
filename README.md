@@ -8,7 +8,7 @@ To run it just type:
 /execute Filename
 in the console.
 
-You can use the console yourself using 'Log("text", "CSScolor")' and 'LogError("text")'
+You can dm me on discord for more information on the library's API
 
 Last thing I must tell you is that to run the console you have to go to the Scripts folder and open 'main.html'
 
