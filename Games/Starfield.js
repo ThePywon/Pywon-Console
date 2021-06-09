@@ -1,4 +1,4 @@
-const FileCheck = {run:(callback) => {window.IsReady=true;callback({name:"Star Field", author:"<a href='https://discord.gg/tDb3DP3C'>Pywon</a>", desc:"Just a star field :)"});}};
+window.Game = {name:"Star Field", author:"<a href='https://discord.gg/tDb3DP3C'>Pywon</a>", desc:"Just a star field :)"};
 
 class Star
 {
@@ -57,13 +57,9 @@ function Start()
   {
     stars.push(new Star());
   }
-  
-  var Update = setInterval(function(){
-    draw();
-  }, 50);
 }
 
-function draw()
+function Update()
 {
   for(var i = 0; i < stars.length; i++)
   {
