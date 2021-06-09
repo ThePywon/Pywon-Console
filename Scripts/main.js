@@ -1,16 +1,20 @@
 var Console = document.getElementById("Console");
 var TextArea = document.getElementById("ConsoleTA");
 var Toggle = document.getElementById("ConsoleToggle");
-var Content = document.getElementById("Content");
-var CheckedValidity = false;
-var IsExecuting = false;
+
+const content = document.getElementById("Content");
+window.keydown = function(event){};
+window.keyup = function(event){};
+window.interval = 50;
+window.timeout = 50;
+window.onMessage = function(message){};
 
 class Exception
 {
-  constructor(type, message, reference = null)
+  constructor(type, content, reference = null)
   {
     this.reference = reference;
-    if(message !== undefined)
+    if(content !== undefined)
     {
       if(this.reference !== null)
       {
@@ -18,26 +22,26 @@ class Exception
         {
           try
           {
-            this.message = type.toString() + " exception in " + this.reference.constructor.name + " class:<br/>" + message.toString();
+            this.content = type.toString() + " exception in " + this.reference.constructor.name + " class:<br/>" + content.toString();
           }
           catch(error)
           {
-            this.message = type.toString() + " exception in " + this.reference.valueOf() + ":<br/>" + message.toString();
+            this.content = type.toString() + " exception in " + this.reference.valueOf() + ":<br/>" + content.toString();
           }
           this.reference._isValid = false;
         }
         else
-          this.message = type.toString() + " exception:<br/>" + message.toString();
+          this.content = type.toString() + " exception:<br/>" + content.toString();
       }
       else
-        this.message = type.toString() + " exception:<br/>" + message.toString();
+        this.content = type.toString() + " exception:<br/>" + content.toString();
     }
     else
-      this.message = "Exception:<br/>" + type.toString();
+      this.content = "Exception:<br/>" + type.toString();
     
     Exception.prototype.toString = function()
     {
-      return this.message;
+      return this.content;
     }
     
     Exception.prototype.valueOf = function()
@@ -57,31 +61,136 @@ class Exception
     
     var Logs = document.getElementById("Logs");
     
-    var P = document.createElement("p")
-    P.className = "ErrLog";
-    P.innerHTML = this.toString();
+    this.display = document.createElement("div");
+    Logs.appendChild(this.display);
+    this.display.className = "ErrLog";
     
-    Logs.appendChild(P);
-    P.scrollIntoView(true);
+    var Icon = document.createElement("img");
+    this.display.appendChild(Icon);
+    Icon.src = "../Assets/Images/RedX.png";
+    
+    var P = document.createElement("p");
+    this.display.appendChild(P);
+    P.innerHTML = this.content.toString();
+    
+    this.display.scrollIntoView(true);
+    
+    var Instance = this;
+    setTimeout(function(){window.onMessage(Instance);}, window.timeout);
+  }
+  
+  remove()
+  {
+    this.display.remove();
+  }
+}
+
+class Warning
+{
+  constructor(type, content, reference = null)
+  {
+    this.reference = reference;
+    if(content !== undefined)
+    {
+      if(this.reference !== null)
+      {
+        if(typeof this.reference == "object")
+        {
+          try
+          {
+            this.content = type.toString() + " warning in " + this.reference.constructor.name + " class:<br/>" + content.toString();
+          }
+          catch(error)
+          {
+            this.content = type.toString() + " warning in " + this.reference.valueOf() + ":<br/>" + content.toString();
+          }
+        }
+        else
+          this.content = type.toString() + " warning:<br/>" + content.toString();
+      }
+      else
+        this.content = type.toString() + " warning:<br/>" + content.toString();
+    }
+    else
+      this.content = "Warning:<br/>" + type.toString();
+    
+    Warning.prototype.toString = function()
+    {
+      return this.content;
+    }
+    
+    Warning.prototype.valueOf = function()
+    {
+      return "Warning";
+    }
+    
+    this.print();
+  }
+  
+  print()
+  {
+    var BlankLog = document.getElementById("BlankLog");
+    
+    if(BlankLog !== null)
+      BlankLog.remove();
+    
+    var Logs = document.getElementById("Logs");
+    
+    this.display = document.createElement("div");
+    Logs.appendChild(this.display);
+    this.display.className = "WarnLog";
+    
+    var Icon = document.createElement("img");
+    this.display.appendChild(Icon);
+    Icon.src = "../Assets/Images/YellowWarning.png";
+    
+    var P = document.createElement("p");
+    this.display.appendChild(P);
+    P.innerHTML = this.content.toString();
+    
+    this.display.scrollIntoView(true);
+    
+    var Instance = this;
+    setTimeout(function(){window.onMessage(Instance);}, window.timeout);
+  }
+  
+  remove()
+  {
+    this.display.remove();
   }
 }
 
 class Log
 {
-  constructor(message, color = "white", scroll = true)
+  constructor(content, color, scroll, url)
   {
-    this.message = message.toString();
-    this.color = color;
-    this.scroll = scroll;
+    this._isValid = true;
+    if(content !== undefined)
+      this.content = content.toString();
+    else
+    {
+      new Exception("Invalid value", "Passed value 'content' returned undefined!", this);
+      return;
+    }
+    if(color !== undefined)
+      this.color = color;
+    else this.color = "white";
+    if(this.scroll !== undefined)
+      this.scroll = scroll;
+    else this.scroll = true;
+    this.url = url;
     
     Log.prototype.toString = function()
     {
-      return this.message;
+      return this.content;
     }
     
     Log.prototype.valueOf = function()
     {
-      return "Log";
+      if(this._isValid)
+        return "Log";
+      else
+        return "<a style='color:red;'>[Log]</a>";
     }
     
     this.print();
@@ -96,25 +205,83 @@ class Log
     
     var Logs = document.getElementById("Logs");
     
-    this.Display = document.createElement("p")
-    this.Display.className = "Log";
-    this.Display.innerHTML = this.message;
-    this.Display.style.color = this.color;
-    this.Display.style.borderLeft = "2px solid " + this.color;
+    this.display = document.createElement("div")
+    Logs.appendChild(this.display);
+    this.display.className = "Log";
+    this.display.style.borderLeft = "2px solid " + this.color;
     
-    Logs.appendChild(this.Display);
-    this.Display.scrollIntoView(this.scroll);
+    
+    if(this.url !== undefined)
+    {
+      this.icon = document.createElement("img");
+      this.display.appendChild(this.icon);
+      this.icon.src = "../Assets/Images/" + this.url;
+    }
+    
+    this.text = document.createElement("p");
+    this.display.appendChild(this.text);
+    this.text.style.color = this.color;
+    this.text.innerHTML = this.content;
+    
+    this.display.scrollIntoView(this.scroll);
+    
+    var Instance = this;
+    setTimeout(function(){window.onMessage(Instance);}, window.timeout);
   }
   
-  edit(message)
+  edit(content)
   {
-    this.Display.innerHTML = message.toString();
+    if(this._isValid)
+    {
+      this.content = content;
+      this.text.innerHTML = content.toString();
+    }
+    else
+      new Exception("Invalid value", "Cannot edit this instance of Log because it is invalid.", this);
   }
   
   setColor(color)
   {
-    this.Display.style.color = color;
-    this.Display.style.borderLeft = "2px solid " + color;
+    if(this._isValid)
+    {
+      this.color = color;
+      this.text.style.color = color;
+      this.display.style.borderLeft = "2px solid " + color;
+    }
+    else
+      new Exception("Invalid value", "Cannot change the color of this instance of Log because it is invalid.", this);
+  }
+  
+  setImage(url)
+  {
+    if(this._isValid)
+    {
+      if(this.url === undefined)
+      {
+        this.url = url;
+        this.display.innerHTML = "";
+        
+        this.icon = document.createElement("img");
+        this.display.appendChild(this.icon);
+        this.icon.src = "../Assets/Images/" + this.url;
+        
+        this.text = document.createElement("p");
+        this.display.appendChild(this.text);
+        this.text.style.color = this.color;
+        this.text.innerHTML = this.message;
+      }
+      
+      this.url = url;
+      this.icon.src = "../Assets/Images/" + this.url;
+    }
+    else
+      new Exception("Invalid value", "Cannot change the image of this instance of Log because it is invalid.", this);
+  }
+  
+  remove()
+  {
+    this.display.remove();
+    this._isValid = false;
   }
 }
 
@@ -818,6 +985,11 @@ class Circle
     this.display.style.left = this.position.x - this.width/2;
     this.display.style.bottom = this.position.y - this.width/2;
   }
+  
+  remove()
+  {
+    this.display.remove();
+  }
 }
 
 class Line
@@ -888,6 +1060,11 @@ class Line
       rad *= -1;
     this.point.style.transform = "rotate(" + rad + "rad)";
   }
+  
+  remove()
+  {
+    this.display.remove();
+  }
 }
 
 class Box
@@ -947,75 +1124,151 @@ class Box
     this.display.style.left = this.position.x;
     this.display.style.bottom = this.position.y;
   }
+  
+  remove()
+  {
+    this.display.remove();
+  }
 }
 
-const content = document.getElementById("Content");
-
-//Start a javascript file of your choice (has to be in the 'Games' directory)
-function Execute(name)
+class Sprite
 {
-  if(!IsExecuting)
+  constructor(position, size, url)
   {
-    CheckedValidity = false;
-    IsExecuting = true;
-    
-    if(window.IsReady)
+    Sprite.prototype.valueOf = function()
     {
-      new Exception("File execution", "Cannot execute file because another one has already been executed.");
-      return;
+      return "Sprite";
     }
     
-    var Game = document.createElement("script");
-    Game.src = "../Games/" + name + ".js";
-    document.getElementById("Games").appendChild(Game);
+    this._isValid = true;
+    if(typeof url == "string")
+    {
+      this.url = url;
+    }
+    else
+    {
+      this.url = "";
+      new Exception("Unexpected value", "Passed value 'url' was not a value of type string.<br/>Value type: " + typeof url, this);
+    }
+    if(position.valueOf() == "Vector2")
+    {
+      this.position = position;
+    }
+    else
+    {
+      this.position = new Vector2();
+      new Exception("Unexpected value", "Passed value 'position' was not a value of type Vector2.<br/>Value type: " + position.valueOf(), this);
+    }
+    if(size.valueOf() == "Vector2")
+    {
+      this.size = size;
+    }
+    else
+    {
+      this.size = new Vector2();
+      new Exception("Unexpected value", "Passed value 'size' was not a value of type Vector2.<br/>Value type: " + size.valueOf(), this);
+    }
     
-    new Log("Attempt to execute '" + name + "'.<br/>Please wait around 1 to 2 seconds to get a response.", "cyan");
+    Sprite.prototype.toString = function()
+    {
+      if(this._isValid)
+        return "Sprite<br/>Url: " + this.url + "<br/>Position: " + this.position.toString() + "<br/>Size: " + this.size.toString();
+      else
+        return "<a style='color:red;'>[Sprite]</a>";
+    }
+    
+    this.init();
+  }
+  
+  init()
+  {
+    this.display = document.createElement("img");
+    content.appendChild(this.display);
+    readOnly(this.display);
+    this.display.style.position = "absolute";
+    try
+    {
+    this.update();
+    }
+    catch(error)
+    {
+      new Exception(error);
+    }
+  }
+  
+  update()
+  {
+    this.display.src = this.url;
+    this.display.style.width = this.size.x;
+    this.display.style.height = this.size.y;
+    this.display.style.left = this.position.x;
+    this.display.style.bottom = this.position.y;
+  }
+  
+  remove()
+  {
+    this.display.remove();
+  }
+}
+
+//Start a javascript file of your choice (has to be in the 'Games' directory)
+function execute(name)
+{
+  if(!window.executing)
+  {
+    window.executing = true;
+    var log = new Log("Executing '" + name + "'...", "cyan", true, "Gear.png");
+    
+    if(window.executed !== undefined)
+      new Warning("File execution", "Already executed file earlier.<br/>Executing more than one file at once can bug out the process of previous files.")
+    
+    var game = document.createElement("script");
+    game.src = "../Games/" + name + ".js";
+    document.getElementById("Games").appendChild(game);
     
     setTimeout(function(){
-      Content.innerHTML = "<img id='Check' src='execute' onerror='FileCheck.run(function(value){CheckValid(value);})'/>";
-      document.getElementById("Check").remove();
+      //Start call
+      window.executed = "";
+      window.executing = false;
+      content.innerHTML = "<img id='start' src='invalid' onerror='Start()'></img>";
+      document.getElementById("start").remove();
       
-      setTimeout(function () {
-        if(!CheckedValidity)
-          CheckValid({name:name});
-      }, 1000);
+      //Check callback
+      if(window.Game !== undefined)
+      {
+        if(window.Game.name === undefined)
+          window.Game.name = "*no name*";
+        if(window.Game.author === undefined)
+          window.Game.author = "anonymous";
+        if(window.Game.desc === undefined)
+          window.Game.desc = "*empty*";
+        
+        //Successful
+        log.edit("Successfully executed '" + window.Game.name + "'!<br/>Made by " + window.Game.author + "<br/>Description: " + window.Game.desc);
+        log.setColor("lime");
+        log.setImage("GreenCheckmark.png");
+        
+        //Update call
+        _Update = setInterval(_u1, window.interval);
+        return true;
+      }
+      else
+      {
+        log.remove();
+        new Exception("File execution", "No information callback was done. There is a chance that the file wasn't meant to be executed in that way or that it simply doesn't exist.");
+        return false;
+      }
     }, 1000);
   }
   else
-    new Exception("File execution", "Already trying to execute a file.");
-}
-
-function CheckValid(game = {})
-{
-  
-  CheckedValidity = true;
-  IsExecuting = false;
-  
-  if (window.IsReady === undefined)
   {
-    new Exception("File execution", "Failed to execute '" + game.name + "'. This may be because file wasn't found or because file wasn't meant to be executed in that way.");
-    return;
-  }
-  else
-  {
-    if(game.name === undefined)
-      game.name = "*no name*"
-    
-    if(game.author === undefined)
-      game.author = "anonymous"
-    
-    if(game.desc === undefined)
-      game.desc = "*empty*"
-    
-    new Log("Successfully executed '" + game.name + "'!<br/>Made by " + game.author + "<br/>Description: " + game.desc, "lime");
-    Content.innerHTML = "<img id='StartCall' src='execute' onerror='Start()'/>";
-    document.getElementById("StartCall").remove();
+    new Exception("File execution", "Cannot execute file because the console is already executing a file.");
     return;
   }
 }
 
 //Console toggle
-function ToggleConsole()
+function toggleConsole()
 {
   if(Console.style.top == "10px")
     Console.style.top = "-300px";
@@ -1028,49 +1281,78 @@ function ToggleConsole()
     Toggle.style.transform = "rotate(180deg)";
 }
 
+function clearConsole()
+{
+  Logs = document.getElementById("Logs");
+  Logs.innerHTML = "<p id='BlankLog'>There are no logs yet.</p>";
+}
+
 //Keyboard Inputs
 document.addEventListener('keydown', function(event) {
-    if(event.keyCode == 13) {
-      LockTextArea();
-      DoCommand(PopTextArea());
-    }
+  //Call keydown event
+  window.keydown(event);
+  
+  //Handle commands + lock textarea
+  if(event.keyCode == 13) {
+    lockTextArea();
+    handleCommands(popTextArea());
+  }
 });
 
 document.addEventListener('keyup', function(event) {
-    if(event.keyCode == 13) {
-      UnlockTextArea();
-    }
+  //Call keyup event
+  window.keyup(event);
+  
+  //unlock textarea
+  if(event.keyCode == 13) {
+    unlockTextArea();
+  }
 });
 
 //Console TextArea stuff
-function LockTextArea()
+function lockTextArea()
 {
   TextArea.readOnly = true;
 }
 
-function UnlockTextArea()
+function unlockTextArea()
 {
   TextArea.readOnly = false;
 }
 
-function PopTextArea()
+function popTextArea()
 {
   var Result = TextArea.value;
   TextArea.value = "";
   return Result;
 }
 
-function CorrectTextArea()
+function correctTextArea()
 {
   TextArea.value = TextArea.value.replace(/\n/g, "").replace(/</g, "").replace(/>/g, "");
 }
 
 //Console commands
-function DoCommand(message)
+function handleCommands(message)
 {
   if(message.startsWith("/"))
   {
-    var args = message.replace("/", "").split(" ");
+    var commands = {
+      "execute":function(args){
+        if(args.length == 1)
+          execute(args[0]);
+        else
+          new Exception("Console command", "Invalid argument amount. Expected 1 argument.");
+      },
+      "clear":function(args){
+        if(args.length === 0)
+          clearConsole();
+        else
+          new Exception("Console command", "Invalid argument amount. Expected 0 arguments.");
+      }
+    };
+    
+    var args = message.slice(1).split(" ");
     
     for(var i = 0; i < args.length; i++)
       if(args[i] === "")
@@ -1079,33 +1361,32 @@ function DoCommand(message)
         return;
       }
     
-    if(args[0].toLowerCase() == "execute")
+    try
     {
-      if(args.length == 2)
-        Execute(args[1]);
-      else
-        new Exception("Console command", "Invalid argument amount. Expected 1 argument.");
-      return;
+      commands[args[0]](args.slice(1));
     }
-    else if(args[0].toLowerCase() == "clear")
-      if(args.length == 1)
-      {
-        Logs = document.getElementById("Logs");
-        Logs.innerHTML = "<p id='BlankLog'>There are no logs yet.</p>";
-        return;
-      }
-      else
-      {
-        new Exception("Console command", "Invalid argument amount. Expected 1 argument.");
-        return;
-      }
-        
-    new Exception("Console command", "No command named '" + args[0].toLowerCase() + "' exist.");
+    catch(error)
+    {
+      new Exception("Console command", "No command named '" + args[0].toLowerCase() + "' exist.");
+    }
   }
-  else
-    if(message.replace(/ /g, "") !== "")
-      new Log(message);
+  else if(message.replace(/ /g, "") !== "")
+    new Log(message);
 }
+
+//Handle update
+var Update = function(){};
+var _Update;
+var _u1 = function(){
+  clearInterval(_Update);
+  Update();
+  _Update = setInterval(_u2, window.interval);
+};
+var _u2 = function(){
+  clearInterval(_Update);
+  Update();
+  _Update = setInterval(_u1, window.interval);
+};
 
 function readOnly(element)
 {
@@ -1149,4 +1430,21 @@ function clamp(value, min, max)
   {
     new Exception("Unexpected value", "Cannot clamp value becauses one or more of the passed values weren't values of type number.");
   }
+}
+
+function collision(element1, element2)
+{
+  var Rect1 = element1.getBoundingClientRect();
+  var Rect2 = element2.getBoundingClientRect();
+    
+  var overlap = !(Rect1.right < Rect2.left ||
+                  Rect1.left > Rect2.right ||
+                  Rect1.bottom < Rect2.top ||
+                  Rect1.top > Rect2.bottom)
+  
+  
+  if(overlap)
+    return {other:element2};
+  else
+    return false;
 }
