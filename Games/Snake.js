@@ -1,4 +1,4 @@
-const FileCheck = {run:(callback) => {window.IsReady=true;callback({name:"Snake", author:"<a href='https://discord.gg/tDb3DP3C'>Pywon</a>", desc:"Old classic remake."});}};
+window.Game = {name:"Snake", author:"<a href='https://discord.gg/tDb3DP3C'>Pywon</a>", desc:"Old classic remake."};
 
 class Snake
 {
@@ -74,11 +74,11 @@ class Snake
         this.body = [];
         this.body.push(new Box(this.position.new(), new Vector2(this.width, this.width)));
         this.position = this.spawn.new();
-        food.relocate(this);
+        return true;
       }
     }
     
-    if(this.position.x < map.position.x + cellSize || this.position.x > map.position.x + mapSize * cellSize || this.position.y < map.position.y + cellSize || this.position.y > map.position.y + mapSize * cellSize)
+    if(this.position.x < map.position.x || this.position.x > map.position.x + mapSize * cellSize - cellSize || this.position.y < map.position.y || this.position.y > map.position.y + mapSize * cellSize - cellSize)
     {
       for(var i = 0; i < this.body.length; i++)
       {
@@ -87,8 +87,10 @@ class Snake
       this.body = [];
       this.body.push(new Box(this.position.new(), new Vector2(this.width, this.width)));
       this.position = this.spawn.new();
-      food.relocate(this);
+      return true;
     }
+    
+    return false;
   }
 }
 
@@ -143,35 +145,27 @@ var cellSize = 20;
 function Start()
 {
   map = new Box(new Vector2(window.innerWidth/2-(mapSize * cellSize)/2-cellSize, window.innerHeight/2-(mapSize * cellSize)/2-cellSize), new Vector2(mapSize * cellSize, mapSize * cellSize), "black");
-  map.display.style.border = cellSize + "px solid white";
+  map.display.style.outline = cellSize + "px solid white";
   
   s = new Snake(new Vector2(window.innerWidth/2-cellSize/2, window.innerHeight/2-cellSize/2));
   
   food = new Food(new Vector2());
   food.relocate(s);
   
-  var Update = setInterval(function(){
-    draw();
-    if(s.eat(food.position))
-      food.relocate(s);
-  }, 200);
+  window.interval = 200;
 }
 
-function draw()
+function Update()
 {
-  try
-  {
-  s.death(food);
+  if(s.death())
+    food.relocate(s);
   s.update();
   s.show();
-  }
-  catch(error)
-  {
-    new Exception(error);
-  }
+  if(s.eat(food.position))
+    food.relocate(s);
 }
 
-document.addEventListener("keydown", function(event){
+window.keydown = function(event){
   if(event.keyCode == 37)
   {
     if(!s.facing.equals(new Dir2D("right")))
@@ -192,4 +186,4 @@ document.addEventListener("keydown", function(event){
     if(!s.facing.equals(new Dir2D("up")))
       s.newDir = new Dir2D("down");
   }
-})
+};
