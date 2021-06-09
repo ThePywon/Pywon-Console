@@ -1,4 +1,4 @@
-const FileCheck = {run:(callback) => {window.IsReady=true;callback({name:"Purple Rain", author:"<a href='https://discord.gg/tDb3DP3C'>Pywon</a>", desc:"Just some purple rain."});}};
+window.Game = {name:"Purple Rain", author:"<a href='https://discord.gg/tDb3DP3C'>Pywon</a>", desc:"Just some purple rain."};
 
 class Drop
 {
@@ -49,13 +49,9 @@ function Start()
   {
     drops.push(new Drop(new Vector3(random(0, window.innerWidth), random(window.innerHeight, window.innerHeight+500), random(0, 20))));
   }
-  
-  var Update = setInterval(function(){
-    draw();
-  }, 50);
 }
 
-function draw()
+function Update()
 {
   try
   {
