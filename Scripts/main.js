@@ -3,11 +3,12 @@ var TextArea = document.getElementById("ConsoleTA");
 var Toggle = document.getElementById("ConsoleToggle");
 
 const content = document.getElementById("Content");
-window.keydown = function(event){};
-window.keyup = function(event){};
+Keydown = function(event){};
+Keyup = function(event){};
 window.interval = 50;
 window.timeout = 50;
-window.onMessage = function(message){};
+OnMessage = function(message){};
+OnError = function(message){};
 
 class Exception
 {
@@ -76,12 +77,17 @@ class Exception
     this.display.scrollIntoView(true);
     
     var Instance = this;
-    setTimeout(function(){window.onMessage(Instance);}, window.timeout);
+    setTimeout(function(){OnError(Instance);}, window.timeout);
   }
   
-  remove()
+  delete()
   {
     this.display.remove();
+  }
+  
+  isValid()
+  {
+    return this._isValid;
   }
 }
 
@@ -151,12 +157,17 @@ class Warning
     this.display.scrollIntoView(true);
     
     var Instance = this;
-    setTimeout(function(){window.onMessage(Instance);}, window.timeout);
+    setTimeout(function(){OnError(Instance);}, window.timeout);
   }
   
-  remove()
+  delete()
   {
     this.display.remove();
+  }
+  
+  isValid()
+  {
+    return this._isValid;
   }
 }
 
@@ -226,7 +237,7 @@ class Log
     this.display.scrollIntoView(this.scroll);
     
     var Instance = this;
-    setTimeout(function(){window.onMessage(Instance);}, window.timeout);
+    setTimeout(function(){OnMessage(Instance);}, window.timeout);
   }
   
   edit(content)
@@ -278,10 +289,15 @@ class Log
       new Exception("Invalid value", "Cannot change the image of this instance of Log because it is invalid.", this);
   }
   
-  remove()
+  delete()
   {
     this.display.remove();
     this._isValid = false;
+  }
+  
+  isValid()
+  {
+    return this._isValid;
   }
 }
 
@@ -1244,9 +1260,14 @@ function execute(name)
           window.Game.desc = "*empty*";
         
         //Successful
-        log.edit("Successfully executed '" + window.Game.name + "'!<br/>Made by " + window.Game.author + "<br/>Description: " + window.Game.desc);
-        log.setColor("lime");
-        log.setImage("GreenCheckmark.png");
+        if(log.isValid())
+        {
+          log.edit("Successfully executed '" + window.Game.name + "'!<br/>Made by " + window.Game.author + "<br/>Description: " + window.Game.desc);
+          log.setColor("lime");
+          log.setImage("GreenCheckmark.png");
+        }
+        else
+          new Log("Successfully executed '" + window.Game.name + "'!<br/>Made by " + window.Game.author + "<br/>Description: " + window.Game.desc, "lime", true, "GreenCheckmark.png");
         
         //Update call
         _Update = setInterval(_u1, window.interval);
@@ -1290,7 +1311,7 @@ function clearConsole()
 //Keyboard Inputs
 document.addEventListener('keydown', function(event) {
   //Call keydown event
-  window.keydown(event);
+  Keydown(event);
   
   //Handle commands + lock textarea
   if(event.keyCode == 13) {
@@ -1301,7 +1322,7 @@ document.addEventListener('keydown', function(event) {
 
 document.addEventListener('keyup', function(event) {
   //Call keyup event
-  window.keyup(event);
+  Keyup(event);
   
   //unlock textarea
   if(event.keyCode == 13) {
