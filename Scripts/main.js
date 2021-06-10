@@ -1,6 +1,6 @@
-var Console = document.getElementById("Console");
-var TextArea = document.getElementById("ConsoleTA");
-var Toggle = document.getElementById("ConsoleToggle");
+const Console = document.getElementById("Console");
+const TextArea = document.getElementById("ConsoleTA");
+const Toggle = document.getElementById("ConsoleToggle");
 
 const content = document.getElementById("Content");
 Keydown = function(event){};
@@ -1233,6 +1233,7 @@ function execute(name)
   if(!window.executing)
   {
     window.executing = true;
+    window.Game = undefined;
     var log = new Log("Executing '" + name + "'...", "cyan", true, "Gear.png");
     
     if(window.executed !== undefined)
@@ -1244,7 +1245,6 @@ function execute(name)
     
     setTimeout(function(){
       //Start call
-      window.executed = "";
       window.executing = false;
       content.innerHTML = "<img id='start' src='invalid' onerror='Start()'></img>";
       document.getElementById("start").remove();
@@ -1270,12 +1270,14 @@ function execute(name)
           new Log("Successfully executed '" + window.Game.name + "'!<br/>Made by " + window.Game.author + "<br/>Description: " + window.Game.desc, "lime", true, "GreenCheckmark.png");
         
         //Update call
+        window.executed = "";
+        clearInterval(_Update);
         _Update = setInterval(_u1, window.interval);
         return true;
       }
       else
       {
-        log.remove();
+        log.delete();
         new Exception("File execution", "No information callback was done. There is a chance that the file wasn't meant to be executed in that way or that it simply doesn't exist.");
         return false;
       }
