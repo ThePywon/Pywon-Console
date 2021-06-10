@@ -165,7 +165,7 @@ function Update()
     food.relocate(s);
 }
 
-window.keydown = function(event){
+function Keydown(event){
   if(event.keyCode == 37)
   {
     if(!s.facing.equals(new Dir2D("right")))
