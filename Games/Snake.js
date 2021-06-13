@@ -78,7 +78,7 @@ class Snake
       }
     }
     
-    if(this.position.x < map.position.x || this.position.x > map.position.x + mapSize * cellSize - cellSize || this.position.y < map.position.y || this.position.y > map.position.y + mapSize * cellSize - cellSize)
+    if(this.position.x < map.position.x-map.size.x/2 || this.position.x > map.position.x-map.size.x/2 + mapSize * cellSize || this.position.y < map.position.y-map.size.y/2 || this.position.y > map.position.y-map.size.y/2 + mapSize * cellSize)
     {
       for(var i = 0; i < this.body.length; i++)
       {
@@ -110,18 +110,18 @@ class Food
   
   relocate(snake)
   {
-    var x = random(cellSize, mapSize * cellSize);
-    var y = random(cellSize, mapSize * cellSize);
-    x = parseInt(x/cellSize)*cellSize+map.position.x;
-    y = parseInt(y/cellSize)*cellSize+map.position.y;
+    var x = random(0, mapSize * cellSize);
+    var y = random(0, mapSize * cellSize);
+    x = parseInt(x/cellSize)*cellSize+map.position.x-parseInt(map.size.x/2)+cellSize/2;
+    y = parseInt(y/cellSize)*cellSize+map.position.y-parseInt(map.size.y/2)+cellSize/2;
     this.position = new Vector2(x, y);
     
     while(snake.collides(this.position) || this.position.equals(snake.position))
     {
-      var x = random(cellSize, mapSize * cellSize);
-      var y = random(cellSize, mapSize * cellSize);
-      x = parseInt(x/cellSize)*cellSize+map.position.x;
-      y = parseInt(y/cellSize)*cellSize+map.position.y;
+      var x = random(0, mapSize * cellSize);
+      var y = random(0, mapSize * cellSize);
+      x = parseInt(x/cellSize)*cellSize+map.position.x-parseInt(map.size.x/2)+cellSize/2;
+      y = parseInt(y/cellSize)*cellSize+map.position.y-parseInt(map.size.y/2)+cellSize/2;
       this.position = new Vector2(x, y);
     }
     
@@ -130,7 +130,7 @@ class Food
   
   draw()
   {
-    this.display.position = this.position;
+    this.display.position = this.position.new();
     this.display.update();
   }
 }
@@ -144,10 +144,10 @@ var cellSize = 20;
 
 function Start()
 {
-  map = new Box(new Vector2(window.innerWidth/2-(mapSize * cellSize)/2-cellSize, window.innerHeight/2-(mapSize * cellSize)/2-cellSize), new Vector2(mapSize * cellSize, mapSize * cellSize), "black");
+  map = new Box(new Vector2(window.innerWidth/2, window.innerHeight/2), new Vector2(mapSize * cellSize, mapSize * cellSize), "black");
   map.display.style.outline = cellSize + "px solid white";
   
-  s = new Snake(new Vector2(window.innerWidth/2-cellSize/2, window.innerHeight/2-cellSize/2));
+  s = new Snake(new Vector2(window.innerWidth/2, window.innerHeight/2));
   
   food = new Food(new Vector2());
   food.relocate(s);
@@ -186,4 +186,4 @@ function Keydown(event){
     if(!s.facing.equals(new Dir2D("up")))
       s.newDir = new Dir2D("down");
   }
-};
+}
