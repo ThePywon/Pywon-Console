@@ -1,15 +1,18 @@
+//Get references
 const Console = document.getElementById("Console");
 const TextArea = document.getElementById("ConsoleTA");
 const Toggle = document.getElementById("ConsoleToggle");
-
 const content = document.getElementById("Content");
-Keydown = function(event){};
-Keyup = function(event){};
+
+//Defaults
+var Keydown = function(event){};
+var Keyup = function(event){};
+var OnMessage = function(message){};
+var OnError = function(message){};
 window.interval = 50;
 window.timeout = 50;
-OnMessage = function(message){};
-OnError = function(message){};
 
+//Message classes
 class Exception
 {
   constructor(type, content, reference = null)
@@ -23,22 +26,22 @@ class Exception
         {
           try
           {
-            this.content = type.toString() + " exception in " + this.reference.constructor.name + " class:<br/>" + content.toString();
+            this.content = type.toString() + " exception in " + this.reference.constructor.name + " class:<br/>" + content.toString().replace(/\n/g, "<br/>");
           }
           catch(error)
           {
-            this.content = type.toString() + " exception in " + this.reference.valueOf() + ":<br/>" + content.toString();
+            this.content = type.toString() + " exception in " + this.reference.valueOf() + ":<br/>" + content.toString().replace(/\n/g, "<br/>");
           }
           this.reference._isValid = false;
         }
         else
-          this.content = type.toString() + " exception:<br/>" + content.toString();
+          this.content = type.toString() + " exception:<br/>" + content.toString().replace(/\n/g, "<br/>");
       }
       else
-        this.content = type.toString() + " exception:<br/>" + content.toString();
+        this.content = type.toString() + " exception:<br/>" + content.toString().replace(/\n/g, "<br/>");
     }
     else
-      this.content = "Exception:<br/>" + type.toString();
+      this.content = "Exception:<br/>" + type.toString().replace(/\n/g, "<br/>");
     
     Exception.prototype.toString = function()
     {
@@ -104,21 +107,21 @@ class Warning
         {
           try
           {
-            this.content = type.toString() + " warning in " + this.reference.constructor.name + " class:<br/>" + content.toString();
+            this.content = type.toString() + " warning in " + this.reference.constructor.name + " class:<br/>" + content.toString().replace(/\n/g, "<br/>");
           }
           catch(error)
           {
-            this.content = type.toString() + " warning in " + this.reference.valueOf() + ":<br/>" + content.toString();
+            this.content = type.toString() + " warning in " + this.reference.valueOf() + ":<br/>" + content.toString().replace(/\n/g, "<br/>");
           }
         }
         else
-          this.content = type.toString() + " warning:<br/>" + content.toString();
+          this.content = type.toString() + " warning:<br/>" + content.toString().replace(/\n/g, "<br/>");
       }
       else
-        this.content = type.toString() + " warning:<br/>" + content.toString();
+        this.content = type.toString() + " warning:<br/>" + content.toString().replace(/\n/g, "<br/>");
     }
     else
-      this.content = "Warning:<br/>" + type.toString();
+      this.content = "Warning:<br/>" + type.toString().replace(/\n/g, "<br/>");
     
     Warning.prototype.toString = function()
     {
@@ -177,7 +180,7 @@ class Log
   {
     this._isValid = true;
     if(content !== undefined)
-      this.content = content.toString();
+      this.content = content.toString().replace(/\n/g, "<br/>");
     else
     {
       new Exception("Invalid value", "Passed value 'content' returned undefined!", this);
@@ -245,7 +248,7 @@ class Log
     if(this._isValid)
     {
       this.content = content;
-      this.text.innerHTML = content.toString();
+      this.text.innerHTML = content.toString().replace(/\n/g, "<br/>");
     }
     else
       new Exception("Invalid value", "Cannot edit this instance of Log because it is invalid.", this);
@@ -301,6 +304,7 @@ class Log
   }
 }
 
+//Data classes
 class Dir2D
 {
   constructor(val = "none")
@@ -325,7 +329,7 @@ class Dir2D
     {
       this.value = undefined;
       this.axis = "none";
-      new Exception("Unexpected value", "Passed value was not a valid value.<br/>Value: " + val, this);
+      new Exception("Unexpected value", "Passed value was not a valid value.\nValue: " + val, this);
     }
     
     Dir2D.prototype.toString = function()
@@ -372,7 +376,7 @@ class Dir2D
     }
     else
     {
-      new Exception("Unexpected value", "Dir2D cannot compare with the passed value because the value wasn't a value of type Dir2D nor a value of type string.<br/>Value type: " + typeof Dir);
+      new Exception("Unexpected value", "Dir2D cannot compare with the passed value because the value wasn't a value of type Dir2D nor a value of type string.\nValue type: " + typeof Dir);
       return false;
     }
   }
@@ -459,14 +463,14 @@ class Vector2
     else
     {
       this.x = NaN;
-      new Exception("Unexpected value", "Passed value 'x' was not a number.<br/>Value type: " + typeof x, this);
+      new Exception("Unexpected value", "Passed value 'x' was not a number.\nValue type: " + typeof x, this);
     }
     if(typeof y == "number")
       this.y = y;
     else
     {
       this.y = NaN;
-      new Exception("Unexpected value", "Passed value 'y' was not a number.<br/>Value type: " + typeof y, this);
+      new Exception("Unexpected value", "Passed value 'y' was not a number.\nValue type: " + typeof y, this);
     }
     
     Vector2.prototype.toString = function()
@@ -703,21 +707,21 @@ class Vector3
     else
     {
       this.x = NaN;
-      new Exception("Unexpected value", "Passed value 'x' was not a number.<br/>Value type: " + typeof x, this);
+      new Exception("Unexpected value", "Passed value 'x' was not a number.\nValue type: " + typeof x, this);
     }
     if(typeof y == "number")
       this.y = y;
     else
     {
       this.y = NaN;
-      new Exception("Unexpected value", "Passed value 'y' was not a number.<br/>Value type: " + typeof y, this);
+      new Exception("Unexpected value", "Passed value 'y' was not a number.\nValue type: " + typeof y, this);
     }
     if(typeof z == "number")
       this.z = z;
     else
     {
       this.z = NaN;
-      new Exception("Unexpected value", "Passed value 'z' was not a number.<br/>Value type: " + typeof z, this);
+      new Exception("Unexpected value", "Passed value 'z' was not a number.\nValue type: " + typeof z, this);
     }
     
     Vector3.prototype.toString = function()
@@ -759,7 +763,7 @@ class Vector3
     }
     else
     {
-      new Exception("Unexpected value", "Vector3 cannot compare with the passed value because is wasn't a value of type Vector3.<br/>Value type: " + other.valueOf());
+      new Exception("Unexpected value", "Vector3 cannot compare with the passed value because is wasn't a value of type Vector3.\nValue type: " + other.valueOf());
       return false;
     }
   }
@@ -792,7 +796,7 @@ class Vector3
     }
     else
     {
-      new Exception("Unexpected value", "Vector3 cannot make an addition with the passed value because the value wasn't a value of type Vector3 nor a value of type number.<br/>Value type: " + typeof value);
+      new Exception("Unexpected value", "Vector3 cannot make an addition with the passed value because the value wasn't a value of type Vector3 nor a value of type number.\nValue type: " + typeof value);
       return null;
     }
   }
@@ -825,7 +829,7 @@ class Vector3
     }
     else
     {
-      new Exception("Unexpected value", "Vector3 cannot make an substraction with the passed value because the value wasn't a value of type Vector3 nor a value of type number.<br/>Value type: " + typeof value);
+      new Exception("Unexpected value", "Vector3 cannot make an substraction with the passed value because the value wasn't a value of type Vector3 nor a value of type number.\nValue type: " + typeof value);
       return null;
     }
   }
@@ -858,7 +862,7 @@ class Vector3
     }
     else
     {
-      new Exception("Unexpected value", "Vector3 cannot make an multiplication with the passed value because is wasn't a value of type Vector3 nor a value of type number.<br/>Value type: " + typeof value);
+      new Exception("Unexpected value", "Vector3 cannot make an multiplication with the passed value because is wasn't a value of type Vector3 nor a value of type number.\nValue type: " + typeof value);
       return null;
     }
   }
@@ -891,7 +895,7 @@ class Vector3
     }
     else
     {
-      new Exception("Unexpected value", "Vector3 cannot divide with the passed value because is wasn't a value of type Vector3 nor a value of type number.<br/>Value type: " + typeof value);
+      new Exception("Unexpected value", "Vector3 cannot divide with the passed value because is wasn't a value of type Vector3 nor a value of type number.\nValue type: " + typeof value);
       return null;
     }
   }
@@ -918,7 +922,7 @@ class Vector3
     }
     else
     {
-      new Exception("Unexpected value", "Vector3 cannot calculate distance with the passed value because the value wasn't a value of type Vector3.<br/>Value type: " + other.valueOf());
+      new Exception("Unexpected value", "Vector3 cannot calculate distance with the passed value because the value wasn't a value of type Vector3.\nValue type: " + other.valueOf());
       return null;
     }
   }
@@ -935,13 +939,14 @@ class Vector3
         return this.Add(new Vector3(x, y, z).Multi(dist));
       }
       else
-        new Exception("Unexpected value", "Vector3 cannot lerp because the passed value 'dist' was not a number.<br/>Value type: " + typeof dist);
+        new Exception("Unexpected value", "Vector3 cannot lerp because the passed value 'dist' was not a number.\nValue type: " + typeof dist);
     }
     else
-      new Exception("Unexpected value", "Vector3 cannot lerp with the passed value because the value wasn't a value of type Vector3.<br/>Value type: " + other.valueOf());
+      new Exception("Unexpected value", "Vector3 cannot lerp with the passed value because the value wasn't a value of type Vector3.\nValue type: " + other.valueOf());
   }
 }
 
+//Shape classes
 class Circle
 {
   constructor(position, width, color = "white")
@@ -960,7 +965,7 @@ class Circle
     else
     {
       this.position = new Vector2();
-      new Exception("Unexpected value", "Passed value 'position' was not a value of type Vector2.<br/>Value type: " + position.valueOf(), this);
+      new Exception("Unexpected value", "Passed value 'position' was not a value of type Vector2.\nValue type: " + position.valueOf(), this);
     }
     if(typeof width == "number")
     {
@@ -969,13 +974,13 @@ class Circle
     else
     {
       this.width = 0;
-      new Exception("Unexpected value", "Passed value 'width' was not a number.<br/>Value type: " + typeof position, this);
+      new Exception("Unexpected value", "Passed value 'width' was not a number.\nValue type: " + typeof position, this);
     }
     
     Circle.prototype.toString = function()
     {
       if(this._isValid)
-        return this.width + "pixels diameter Circle<br/>Color: " + this.color + "<br/>Position: " + this.position.toString();
+        return this.width + "pixels diameter Circle\nColor: " + this.color + "\nPosition: " + this.position.toString();
       else
         return "<a style='color:red;'>[Circle]</a>";
     }
@@ -1002,7 +1007,7 @@ class Circle
     this.display.style.bottom = this.position.y - this.width/2;
   }
   
-  remove()
+  delete()
   {
     this.display.remove();
   }
@@ -1027,7 +1032,7 @@ class Line
     else
     {
       this.start = new Vector2();
-      new Exception("Unexpected value", "Passed value 'start' was not a value of type Vector2.<br/>Value type: " + start.valueOf(), this);
+      new Exception("Unexpected value", "Passed value 'start' was not a value of type Vector2.\nValue type: " + start.valueOf(), this);
     }
     if(end.valueOf() == "Vector2")
     {
@@ -1036,13 +1041,13 @@ class Line
     else
     {
       this.end = new Vector2();
-      new Exception("Unexpected value", "Passed value 'end' was not a value of type Vector2.<br/>Value type: " + end.valueOf(), this);
+      new Exception("Unexpected value", "Passed value 'end' was not a value of type Vector2.\nValue type: " + end.valueOf(), this);
     }
     
     Line.prototype.toString = function()
     {
       if(this._isValid)
-        return this.width + "pixels wide Line<br/>Color: " + this.color + "<br/>Start: " + this.start.toString() + " | End: " + this.end.toString();
+        return this.width + "pixels wide Line\nColor: " + this.color + "\nStart: " + this.start.toString() + " | End: " + this.end.toString();
       else
         return "<a style='color:red;'>[Line]</a>";
     }
@@ -1077,7 +1082,7 @@ class Line
     this.point.style.transform = "rotate(" + rad + "rad)";
   }
   
-  remove()
+  delete()
   {
     this.display.remove();
   }
@@ -1101,7 +1106,7 @@ class Box
     else
     {
       this.position = new Vector2();
-      new Exception("Unexpected value", "Passed value 'position' was not a value of type Vector2.<br/>Value type: " + position.valueOf(), this);
+      new Exception("Unexpected value", "Passed value 'position' was not a value of type Vector2.\nValue type: " + position.valueOf(), this);
     }
     if(size.valueOf() == "Vector2")
     {
@@ -1110,13 +1115,13 @@ class Box
     else
     {
       this.size = new Vector2();
-      new Exception("Unexpected value", "Passed value 'size' was not a value of type Vector2.<br/>Value type: " + size.valueOf(), this);
+      new Exception("Unexpected value", "Passed value 'size' was not a value of type Vector2.\nValue type: " + size.valueOf(), this);
     }
     
     Box.prototype.toString = function()
     {
       if(this._isValid)
-        return "Box<br/>Color: " + this.color + "<br/>Position: " + this.position.toString() + "<br/>Size: " + this.size.toString();
+        return "Box<br/>Color: " + this.color + "\nPosition: " + this.position.toString() + "\nSize: " + this.size.toString();
       else
         return "<a style='color:red;'>[Box]</a>";
     }
@@ -1137,11 +1142,11 @@ class Box
     this.display.style.backgroundColor = this.color;
     this.display.style.width = this.size.x;
     this.display.style.height = this.size.y;
-    this.display.style.left = this.position.x;
-    this.display.style.bottom = this.position.y;
+    this.display.style.left = this.position.x - this.size.x/2;
+    this.display.style.bottom = this.position.y - this.size.y/2;
   }
   
-  remove()
+  delete()
   {
     this.display.remove();
   }
@@ -1164,7 +1169,7 @@ class Sprite
     else
     {
       this.url = "";
-      new Exception("Unexpected value", "Passed value 'url' was not a value of type string.<br/>Value type: " + typeof url, this);
+      new Exception("Unexpected value", "Passed value 'url' was not a value of type string.\nValue type: " + typeof url, this);
     }
     if(position.valueOf() == "Vector2")
     {
@@ -1173,7 +1178,7 @@ class Sprite
     else
     {
       this.position = new Vector2();
-      new Exception("Unexpected value", "Passed value 'position' was not a value of type Vector2.<br/>Value type: " + position.valueOf(), this);
+      new Exception("Unexpected value", "Passed value 'position' was not a value of type Vector2.\nValue type: " + position.valueOf(), this);
     }
     if(size.valueOf() == "Vector2")
     {
@@ -1182,13 +1187,13 @@ class Sprite
     else
     {
       this.size = new Vector2();
-      new Exception("Unexpected value", "Passed value 'size' was not a value of type Vector2.<br/>Value type: " + size.valueOf(), this);
+      new Exception("Unexpected value", "Passed value 'size' was not a value of type Vector2.\nValue type: " + size.valueOf(), this);
     }
     
     Sprite.prototype.toString = function()
     {
       if(this._isValid)
-        return "Sprite<br/>Url: " + this.url + "<br/>Position: " + this.position.toString() + "<br/>Size: " + this.size.toString();
+        return "Sprite<br/>Url: " + this.url + "\nPosition: " + this.position.toString() + "\nSize: " + this.size.toString();
       else
         return "<a style='color:red;'>[Sprite]</a>";
     }
@@ -1202,14 +1207,7 @@ class Sprite
     content.appendChild(this.display);
     readOnly(this.display);
     this.display.style.position = "absolute";
-    try
-    {
     this.update();
-    }
-    catch(error)
-    {
-      new Exception(error);
-    }
   }
   
   update()
@@ -1217,11 +1215,11 @@ class Sprite
     this.display.src = this.url;
     this.display.style.width = this.size.x;
     this.display.style.height = this.size.y;
-    this.display.style.left = this.position.x;
-    this.display.style.bottom = this.position.y;
+    this.display.style.left = this.position.x - this.size.x/2;
+    this.display.style.bottom = this.position.y - this.size.y/2;
   }
   
-  remove()
+  delete()
   {
     this.display.remove();
   }
@@ -1237,7 +1235,7 @@ function execute(name)
     var log = new Log("Executing '" + name + "'...", "cyan", true, "Gear.png");
     
     if(window.executed !== undefined)
-      new Warning("File execution", "Already executed file earlier.<br/>Executing more than one file at once can bug out the process of previous files.")
+      new Warning("File execution", "Already executed file earlier.\nExecuting more than one file at once can bug out the process of previous files.")
     
     var game = document.createElement("script");
     game.src = "../Games/" + name + ".js";
@@ -1262,12 +1260,12 @@ function execute(name)
         //Successful
         if(log.isValid())
         {
-          log.edit("Successfully executed '" + window.Game.name + "'!<br/>Made by " + window.Game.author + "<br/>Description: " + window.Game.desc);
+          log.edit("Successfully executed '" + window.Game.name + "'!\nMade by " + window.Game.author + "\nDescription: " + window.Game.desc);
           log.setColor("lime");
           log.setImage("GreenCheckmark.png");
         }
         else
-          new Log("Successfully executed '" + window.Game.name + "'!<br/>Made by " + window.Game.author + "<br/>Description: " + window.Game.desc, "lime", true, "GreenCheckmark.png");
+          new Log("Successfully executed '" + window.Game.name + "'!\nMade by " + window.Game.author + "\nDescription: " + window.Game.desc, "lime", true, "GreenCheckmark.png");
         
         //Update call
         window.executed = "";
@@ -1290,7 +1288,7 @@ function execute(name)
   }
 }
 
-//Console toggle
+//Console functions
 function toggleConsole()
 {
   if(Console.style.top == "10px")
@@ -1332,7 +1330,7 @@ document.addEventListener('keyup', function(event) {
   }
 });
 
-//Console TextArea stuff
+//Console TextArea functions
 function lockTextArea()
 {
   TextArea.readOnly = true;
@@ -1361,6 +1359,13 @@ function handleCommands(message)
   if(message.startsWith("/"))
   {
     var commands = {
+      "help":function(args)
+      {
+        if(args.length == 0)
+          new Log("Help\nBring up a help message.\n\nExecute {Filename}\nExecute a .js file from the Games folder.\n\nClear\nClear the console.", "darkgrey", true, "Gear.png");
+        else
+          new Exception("Console command", "Invalid argument amount. Expected 0 argument.");
+      },
       "execute":function(args){
         if(args.length == 1)
           execute(args[0]);
@@ -1386,11 +1391,11 @@ function handleCommands(message)
     
     try
     {
-      commands[args[0]](args.slice(1));
+      commands[args[0].toLowerCase()](args.slice(1));
     }
     catch(error)
     {
-      new Exception("Console command", "No command named '" + args[0].toLowerCase() + "' exist.");
+      new Exception("Console command", "No command named '" + args[0].toLowerCase() + "' exist.\nTry using /Help for a list of commands.");
     }
   }
   else if(message.replace(/ /g, "") !== "")
@@ -1411,19 +1416,72 @@ var _u2 = function(){
   _Update = setInterval(_u1, window.interval);
 };
 
+//Usefull stuff
 function readOnly(element)
 {
-  element.style.webkitTouchCallout = "none";
-  element.style.webkitUserSelect = "none";
-  element.style.khtmlUserSelect = "none";
-  element.style.mozUserSelect = "none";
-  element.style.msUserSelect = "none";
-  element.style.userSelect = "none";
+  if(isElement(element))
+  {
+    element.style.webkitTouchCallout = "none";
+    element.style.webkitUserSelect = "none";
+    element.style.khtmlUserSelect = "none";
+    element.style.mozUserSelect = "none";
+    element.style.msUserSelect = "none";
+    element.style.userSelect = "none";
+  }
+  else
+    new Exception("Unexpected value", "Cannot set passed value 'element' as readonly because the passed value was not an instance of HTMLElement nor any similar value class.\nValue type: " + typeof element);
+}
+
+function isElement(obj) {
+  try {
+    return obj instanceof HTMLElement;
+  }
+  catch(e){
+    return (typeof obj==="object") &&
+      (obj.nodeType===1) && (typeof obj.style === "object") &&
+      (typeof obj.ownerDocument ==="object");
+  }
 }
 
 function random(start, end)
 {
-  return Math.random() * (end-start) + start;
+  if(typeof start === "number" && typeof end === "number")
+    return Math.random() * (end-start) + start;
+  else
+  {
+    new Exception("Unexpected value", "One or more of the passed values in random() were not values of type number.");
+    return 0;
+  }
+}
+
+function randomStr(length)
+{
+  if(typeof length === "number")
+  {
+    var result = "";
+    var list = [];
+    var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for(var i = 0; i < length; i++)
+      list.push(chars[parseInt(random(0, chars.length))]);
+    
+    for(var i = 0; i < list.length; i++)
+      result += list[i];
+    
+    return result;
+  }
+  else
+  {
+    new Exception("Unexpected value", "Passed value 'length' in randomStr() was not a value of type number.\nValue type: " + typeof length);
+    return "";
+  }
+}
+
+function randomColor()
+{
+  var r = random(0, 255);
+  var g = random(0, 255);
+  var b = random(0, 255);
+  return "rgb(" + r + ", " + g + ", " + b + ")";
 }
 
 function normalize(value, min, max)
@@ -1457,17 +1515,21 @@ function clamp(value, min, max)
 
 function collision(element1, element2)
 {
-  var Rect1 = element1.getBoundingClientRect();
-  var Rect2 = element2.getBoundingClientRect();
+  if(isElement(element1) && isElement(element2))
+  {
+    var Rect1 = element1.getBoundingClientRect();
+    var Rect2 = element2.getBoundingClientRect();
+      
+    var overlap = !(Rect1.right < Rect2.left || Rect1.left > Rect2.right || Rect1.bottom < Rect2.top || Rect1.top > Rect2.bottom)
     
-  var overlap = !(Rect1.right < Rect2.left ||
-                  Rect1.left > Rect2.right ||
-                  Rect1.bottom < Rect2.top ||
-                  Rect1.top > Rect2.bottom)
-  
-  
-  if(overlap)
-    return {other:element2};
+    if(overlap)
+      return {other:element2};
+    else
+      return false;
+  }
   else
+  {
+    new Exception("Unexpected value", "Cannot calculate collision with the passed values because one or more of the passed values weren't values of type HTMLElement nor any similar class type.");
     return false;
+  }
 }
