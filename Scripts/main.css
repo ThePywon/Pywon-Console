@@ -15,7 +15,7 @@ body
   background-color:black;
 }
 
-img
+#Logs img
 {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -27,7 +27,7 @@ img
 
 #Content
 {
-  display:inline-block;
+  display:block;
   width:100%;
   height:100%;
   overflow:hidden;
@@ -133,7 +133,6 @@ img
   width:90%;
   display:inline-block;
   vertical-align:middle;
-  
 }
 
 .Log img, .ErrLog img, .WarnLog img
