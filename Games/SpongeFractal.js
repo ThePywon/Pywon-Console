@@ -24,12 +24,12 @@ class Frac
     {
       for(var y = -1; y < 2; y++)
       {
-        if(x != 0 || y != 0)
+        if(x !== 0 || y !== 0)
         {
           var newSize = this.size.div(3);
           var newPos = new Vector2(
-              this.position.x+(x+1)*newSize.x,
-              this.position.y+(y+1)*newSize.y);
+              this.position.x+x*newSize.x,
+              this.position.y+y*newSize.y);
           var b = new Frac(newPos.new(), newSize.new());
           boxes.push(b);
         }
@@ -44,9 +44,8 @@ var sponge = [];
 
 function Start()
 {
-  var pos = new Vector2(window.innerWidth, window.innerHeight).div(2);
   var size = new Vector2(243, 243);
-  box = new Frac(pos.sub(size.div(2)), size.new());
+  box = new Frac(new Vector2(window.innerWidth, window.innerHeight).div(2), size.new());
   sponge.push(box);
 }
 
