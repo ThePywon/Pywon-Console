@@ -86,7 +86,7 @@ class Exception
   delete()
   {
     this.display.remove();
-    Logs = document.getElementById("Logs");
+    var Logs = document.getElementById("Logs");
     if(Logs.innerHTML === "")
       Logs.innerHTML = "<p id='BlankLog'>There are no logs yet.</p>";
   }
@@ -169,7 +169,7 @@ class Warning
   delete()
   {
     this.display.remove();
-    Logs = document.getElementById("Logs");
+    var Logs = document.getElementById("Logs");
     if(Logs.innerHTML === "")
       Logs.innerHTML = "<p id='BlankLog'>There are no logs yet.</p>";
   }
@@ -288,7 +288,7 @@ class Log
         this.text = document.createElement("p");
         this.display.appendChild(this.text);
         this.text.style.color = this.color;
-        this.text.innerHTML = this.message;
+        this.text.innerHTML = this.content;
       }
       
       this.url = url;
@@ -302,7 +302,7 @@ class Log
   {
     this.display.remove();
     this._isValid = false;
-    Logs = document.getElementById("Logs");
+    var Logs = document.getElementById("Logs");
     if(Logs.innerHTML === "")
       Logs.innerHTML = "<p id='BlankLog'>There are no logs yet.</p>";
   }
@@ -1284,7 +1284,14 @@ function execute(name)
       }
       else
       {
+        try
+        {
         log.delete();
+        }
+        catch(error)
+        {
+          new Exception(error);
+        }
         new Exception("File execution", "No information callback was done. There is a chance that the file wasn't meant to be executed in that way or that it simply doesn't exist.");
         return false;
       }
@@ -1480,6 +1487,9 @@ function randomStr(length)
   }
   else
   {
+    if(length === undefined)
+      return "";
+    
     new Exception("Unexpected value", "Passed value 'length' in randomStr() was not a value of type number.\nValue type: " + typeof length);
     return "";
   }
@@ -1491,6 +1501,19 @@ function randomColor()
   var g = random(0, 255);
   var b = random(0, 255);
   return "rgb(" + r + ", " + g + ", " + b + ")";
+}
+
+function choose(array)
+{
+  try
+  {
+    var i = parseInt(random(0, array.length));
+    return array[i];
+  }
+  catch(error)
+  {
+    new Exception("Unexpected value", "Cannot choose random element from passed value 'array' because the value wasn't an instance of Array.");
+  }
 }
 
 function normalize(value, min, max)
