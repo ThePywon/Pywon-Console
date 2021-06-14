@@ -86,6 +86,9 @@ class Exception
   delete()
   {
     this.display.remove();
+    Logs = document.getElementById("Logs");
+    if(Logs.innerHTML === "")
+      Logs.innerHTML = "<p id='BlankLog'>There are no logs yet.</p>";
   }
   
   isValid()
@@ -166,6 +169,9 @@ class Warning
   delete()
   {
     this.display.remove();
+    Logs = document.getElementById("Logs");
+    if(Logs.innerHTML === "")
+      Logs.innerHTML = "<p id='BlankLog'>There are no logs yet.</p>";
   }
   
   isValid()
@@ -296,6 +302,9 @@ class Log
   {
     this.display.remove();
     this._isValid = false;
+    Logs = document.getElementById("Logs");
+    if(Logs.innerHTML === "")
+      Logs.innerHTML = "<p id='BlankLog'>There are no logs yet.</p>";
   }
   
   isValid()
