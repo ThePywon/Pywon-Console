@@ -8,8 +8,10 @@ To run it just type:
 /execute Filename
 in the console.
 
-You can dm me on discord for more information on the library's API
+You can always reach out to me for more information on the library's API
+You can also copy/modify/create some stuff on the project.
 
-Last thing I must tell you is that to run the console you have to go to the Scripts folder and open 'main.html'
+! IMPORTANt !
+To open the console, you have to go into the scripts folder and open 'main.html'
 
 Have a very nice day.
