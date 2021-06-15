@@ -1,116 +1,26 @@
 <html>
   <head>
-    <title>Pywon Website</title>
-    <link rel="icon" href="../Games/Test/Assets/Icons/PywonLogo.RoundedEdges.ico"/>
+    <title>Pywon Console</title>
+    <link rel="icon" href="../Assets/Icons/PywonLogo.RoundedEdges.ico"/>
     <link rel="stylesheet" href="main.css"/>
   </head>
   <body>
-    <div id="main">
-      <div id="heading">
-        <h1>
-          Pywon Official Website
-        </h1>
-        <img id="logo" src="../Games/PywonLogo.png"/>
+    <div id="Content">
+      
+    </div>
+    <div id="Console">
+      <div id="Logs">
+        <p id="BlankLog">
+          There are no logs yet.
+        </p>
       </div>
-      <hr/>
-      <div id="menuDesc">
-        <button onclick="document.getElementById('bio').scrollIntoView(true);">
-          Bio
-        </button><!--
-     --><button onclick="document.getElementById('projects').scrollIntoView(true);">
-          Projects
-        </button><!--
-   --></div>
-      <hr/>
-      <div id="description">
-        <div id="bio">
-          <h2>Bio</h2>
-          <p>
-            Welcome to my website!!<br/>
-            I'm Pywon, an independent developer.
-            <br/><br/>
-            I'm learning lots of new skills each day and work on quite a lot of projects of my own.
-            <br/><br/>
-            I'm planning on becoming a full time indie developer and continue developping all my side projects too.
-            <br/><br/>
-            I'm using multiple platforms and languages for my programming.<br/>
-            I'm working my hardest on learning to use even more platforms/languages.<br/>
-            Here are some of thoses I know...
-            <br/><br/>
-          </p>
-          <div class="center">
-            <div>
-              <h3>Platforms</h3>
-              <p class="center">
-                &gt; <a href="https://unity.com/">Unity</a><br/>
-                &gt; <a href="https://atom.io/">Atom</a><br/>
-                &gt; <a href="https://github.com/">Github</a><br/>
-                &gt; <a href="https://replit.com/">Replit</a><br/>
-              </p>
-            </div>
-            <div>
-              <h3>Languages</h3>
-              <p class="center">
-                &gt; Html/Css<br/>
-                &gt; Javascript<br/>
-                &gt; Python<br/>
-                &gt; Csharp
-              </p>
-            </div>
-          </div>
-          <hr/>
-        </div>
-        <div id="projects">
-          <h2>Projects</h2>
-          <p class="center">
-            Here are some of the projects I've been working on:
-          </p>
-          <h3>Discord bots</h3>
-          <div class="center">
-            <div>
-              <a href="https://discord.com/channels/@me/827214539639881759">
-                <img class="circle" src="https://cdn.discordapp.com/avatars/819167161472778260/d957c31168905632a5e9a5684960fc4c.png?size=128"/>
-                <p>Cypewu</p>
-              </a>
-            </div>
-            <div>
-              <a href="https://discord.com/channels/@me/847996383705563146">
-                <img class="circle" src="https://cdn.discordapp.com/avatars/847945385695903795/482dce9856963bd3e596e28fc069ed23.png?size=128">
-                <p>Tournament bot</p>
-              </a>
-            </div>
-          </div>
-          <h3>Pywon Console</h3>
-          <p class="center">
-            Console for debugging and coding in javascript.<br/>
-            Has its own custom library wich I made.
-            <br/><br/>
-            API link: <a href="P1.html"><b>P1 API</b></a><br/>
-            Page link: <a href="../Games/Test/Scripts/main.html"><b>Pywon Console</b></a><br/>
-            Github link: <a href="https://github.com/ThePywon/Pywon-Console"><b>ThePywon/Pywon-Console</b></a>
-          </p>
-          <h3>Greed Mines</h3>
-          <p class="center">
-            Little project of mine (still in beta 0.1.1)<br/>
-            <img style="width:300px;height:300px;image-rendering:pixelated;margin:10px;border-radius:10px;" src="https://img.itch.zone/aW1hZ2UvMTA0MjA4MS81OTc0OTc2LnBuZw==/original/evHyOd.png"/><br/>
-            Get on <a href="https://pywon.itch.io/beta"><b>itch.io</b></a><br/>
-            (password is: 91305)
-          </p>
-        </div>
-      </div>
-      <hr/>
-      <h2>Socials</h2>
-      <div id="socials">
-        <a href="https://discord.gg/Udvtg9vd">
-          <img src="../Games/DiscordLogo.png"/>
-        </a>
-        <a href="https://twitter.com/Pywon1">
-          <img src="../Games/TwitterLogo.png"/>
-        </a>
-        <a href="https://github.com/ThePywon">
-          <img src="../Games/GithubLogo.png"/>
-        </a>
-      </div>
+      <textarea id="ConsoleTA" placeholder="Type here..." maxlength="55" oninput="correctTextArea()"></textarea>
+      <span id="ConsoleToggle" onclick="toggleConsole()">
+        <img src="../Assets/Images/BlackDownArrow.png"/>
+      </span>
+    </div>
+    <div id="Games">
+      
     </div>
     <script src="main.js"></script>
   </body>
